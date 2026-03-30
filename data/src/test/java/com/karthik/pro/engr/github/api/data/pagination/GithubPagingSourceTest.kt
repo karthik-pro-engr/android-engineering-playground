@@ -2,6 +2,20 @@ package com.karthik.pro.engr.github.api.data.pagination
 
 import androidx.paging.PagingSource
 import com.google.common.truth.Truth.assertThat
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.DEFAULT_PAGE_SIZE
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.FIRST_PAGE_LINK_HEADER
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.INTERNAL_SERVER_ERROR_PATH
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.LAST_PAGE_LINK_HEADER
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.LINK_TAG
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.MALFORMED_JSON
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.NOT_FOUND
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.SECOND_PAGE_LINK_HEADER
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.SERVER_ERROR
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.SUCCESS_LAST_PAGE_RESPONSE_PATH
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.SUCCESS_PAGE1_RESPONSE_PATH
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.USERNAME
+import com.karthik.pro.engr.github.api.data.constants.RepoPagingConstants.USER_NOT_FOUND_ERROR_PATH
+import com.karthik.pro.engr.github.api.data.mock.enqueueResponse
 import com.karthik.pro.engr.github.api.data.remote.api.GithubService
 import com.karthik.pro.engr.github.api.data.remote.error.ApiException
 import com.karthik.pro.engr.github.api.data.remote.error.ErrorParser
@@ -9,10 +23,9 @@ import com.karthik.pro.engr.github.api.data.remote.pagination.GithubPagingSource
 import com.karthik.pro.engr.github.api.data.testutil.JsonReader
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import kotlinx.coroutines.test.runTest
+import mockwebserver3.MockWebServer
+import mockwebserver3.SocketEffect
 import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.SocketPolicy
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -59,27 +72,9 @@ class GithubPagingSourceTest {
 
     @After
     fun tearDown() {
-        mockWebServer.shutdown()
+        mockWebServer.close()
     }
 
-    private fun enqueueResponse(
-        code: Int,
-        body: String? = null,
-        headers: Map<String, String> = emptyMap(),
-        socketPolicy: SocketPolicy? = null
-    ) {
-        val response = MockResponse()
-            .setResponseCode(code)
-
-        body?.let { response.setBody(body) }
-        socketPolicy?.let {
-            response.setSocketPolicy(socketPolicy)
-        }
-        headers.forEach { (name, value) ->
-            response.setHeader(name, value)
-        }
-        mockWebServer.enqueue(response)
-    }
 
     private fun refreshParams(loadSize: Int = DEFAULT_PAGE_SIZE): PagingSource.LoadParams.Refresh<Int> =
         PagingSource.LoadParams.Refresh(
@@ -124,17 +119,19 @@ class GithubPagingSourceTest {
 
         assertThat(request).isNotNull()
 
-        val path = request!!.path ?: ""
+        val url = request!!.url
+        val pageQuery = url.queryParameter("page")
+        val perPageQuery = url.queryParameter("per_page")
 
-        assertThat(path).contains("page=$page")
-        assertThat(path).contains("per_page=$DEFAULT_PAGE_SIZE")
+        assertThat(pageQuery).isEqualTo(page.toString())
+        assertThat(perPageQuery).isEqualTo(DEFAULT_PAGE_SIZE.toString())
 
     }
 
     @Test
     fun `load returns success response for first page`() = runTest {
 
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_PAGE1_RESPONSE_PATH),
             headers = mapOf(LINK_TAG to FIRST_PAGE_LINK_HEADER)
@@ -155,7 +152,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns success response for append page`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_PAGE1_RESPONSE_PATH),
             headers = mapOf(LINK_TAG to SECOND_PAGE_LINK_HEADER)
@@ -174,7 +171,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns success response for last page`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_LAST_PAGE_RESPONSE_PATH),
             headers = mapOf(LINK_TAG to LAST_PAGE_LINK_HEADER)
@@ -194,7 +191,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns user not found error`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 404,
             body = JsonReader.read(USER_NOT_FOUND_ERROR_PATH)
         )
@@ -214,10 +211,11 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns io exception when network disconnects`() = runTest {
-        enqueueResponse(
-            code = 200,
-            socketPolicy = SocketPolicy.DISCONNECT_AT_START
-        )
+        mockWebServer.enqueueResponse(
+            code = 200
+        ) {
+            shutdownServer(true)
+        }
 
         val pageResult = load(
             refreshParams()
@@ -231,10 +229,11 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns io exception when timeout happens`() = runTest {
-        enqueueResponse(
-            code = 200,
-            socketPolicy = SocketPolicy.NO_RESPONSE
-        )
+        mockWebServer.enqueueResponse(
+            code = 200
+        ) {
+            onResponseStart(SocketEffect.CloseStream())
+        }
         val pageResult = load(refreshParams())
 
         val error = assertErrorResult(pageResult)
@@ -244,7 +243,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns server error for 500 response`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 500,
             body = JsonReader.read(INTERNAL_SERVER_ERROR_PATH)
         )
@@ -262,7 +261,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns parsing error for malformed json`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = MALFORMED_JSON
         )
@@ -276,7 +275,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns error for append page`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_PAGE1_RESPONSE_PATH),
             headers = mapOf(LINK_TAG to FIRST_PAGE_LINK_HEADER)
@@ -290,7 +289,7 @@ class GithubPagingSourceTest {
         assertThat(firstPageLoadResult.data.size).isEqualTo(DEFAULT_PAGE_SIZE)
         assertThat(firstPageLoadResult.prevKey).isNull()
         assertThat(firstPageLoadResult.nextKey).isEqualTo(2)
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 500,
             body = JsonReader.read(INTERNAL_SERVER_ERROR_PATH)
         )
@@ -308,7 +307,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns next page empty when no link header`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_PAGE1_RESPONSE_PATH)
         )
@@ -325,7 +324,7 @@ class GithubPagingSourceTest {
 
     @Test
     fun `load returns success after previous failure on the next attempt`() = runTest {
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 500,
             body = JsonReader.read(INTERNAL_SERVER_ERROR_PATH),
             headers = mapOf(LINK_TAG to FIRST_PAGE_LINK_HEADER)
@@ -335,7 +334,7 @@ class GithubPagingSourceTest {
         val errorResult = assertErrorResult(pageErrorResult)
         assertThat(errorResult.throwable).isInstanceOf(ApiException::class.java)
 
-        enqueueResponse(
+        mockWebServer.enqueueResponse(
             code = 200,
             body = JsonReader.read(SUCCESS_PAGE1_RESPONSE_PATH),
             headers = mapOf(
@@ -355,31 +354,5 @@ class GithubPagingSourceTest {
     }
 
 
-    companion object {
-        private const val SUCCESS_PAGE1_RESPONSE_PATH = "repo/success/repo_page1_success.json"
-        private const val SUCCESS_LAST_PAGE_RESPONSE_PATH =
-            "repo/success/repo_last_page_success.json"
-        private const val INTERNAL_SERVER_ERROR_PATH = "repo/error/internal_server_error.json"
-        private const val USER_NOT_FOUND_ERROR_PATH = "repo/error/user_not_found_error.json"
-
-        private const val FIRST_PAGE_LINK_HEADER =
-            "<https://api.github.com/user/66577/repos?per_page=8&page=2>; rel=\"next\", <https://api.github.com/user/66577/repos?per_page=8&page=19>; rel=\"last\""
-        private const val LAST_PAGE_LINK_HEADER =
-            "<https://api.github.com/user/66577/repos?per_page=8&page=18>; rel=\"prev\", <https://api.github.com/user/66577/repos?per_page=8&page=1>; rel=\"first\""
-
-        private const val SECOND_PAGE_LINK_HEADER =
-            "<https://api.github.com/user/66577/repos?per_page=8&page=1>; rel=\"prev\"," +
-                    "<https://api.github.com/user/66577/repos?per_page=8&page=3>; rel=\"next\"," +
-                    "<https://api.github.com/user/66577/repos?per_page=8&page=1>; rel=\"first\"," +
-                    "<https://api.github.com/user/66577/repos?per_page=8&page=19>; rel=\"last\""
-
-        private const val USERNAME = "JakeWharton"
-        private const val LINK_TAG = "Link"
-        private const val NOT_FOUND = "Not Found"
-        private const val SERVER_ERROR = "Server Error"
-
-        private const val MALFORMED_JSON = """[{ "id": 1, "name": """
-        private const val DEFAULT_PAGE_SIZE = 8
-    }
 
 }
