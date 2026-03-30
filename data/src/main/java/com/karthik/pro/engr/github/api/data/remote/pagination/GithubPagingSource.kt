@@ -12,6 +12,7 @@ import com.karthik.pro.engr.github.api.domain.constants.PaginationConstants
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class GithubPagingSource @Inject constructor(
     private val service: GithubService,
@@ -52,6 +53,7 @@ class GithubPagingSource @Inject constructor(
         } catch (io: IOException) {
             LoadResult.Error(io)
         } catch (t: Throwable) {
+            if (t is CancellationException) throw t
             LoadResult.Error(t)
         }
 
