@@ -47,6 +47,7 @@ mockk = "1.14.9"
 turbine = "1.2.1"
 pagingCommon = "3.4.2"
 pagingTesting = "3.3.0"
+pagingRuntimeKtx = "3.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -115,6 +116,7 @@ androidx-paging-common = {module = "androidx.paging:paging-common", version.ref 
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-paging-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "pagingTesting" }
+androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

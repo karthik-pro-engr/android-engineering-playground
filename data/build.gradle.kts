@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.paging)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.paging.runtime.ktx)
     kapt(libs.hilt.compiler)
 
     testImplementation(libs.junit)
