@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
@@ -31,6 +32,8 @@ import com.karthik.pro.engr.github.api.domain.model.Owner
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
+import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
+import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -102,6 +105,7 @@ fun ReposSearchByUserName(
             value = username,
             onValueChange = { username = it },
             modifier = Modifier
+                .testTag(SEARCH_INPUT)
                 .weight(1f)
                 .height(IntrinsicSize.Min),
             label = { Text(stringResource(R.string.repos_label_username)) }
@@ -109,7 +113,7 @@ fun ReposSearchByUserName(
 
         Spacer(Modifier.width(8.dp))
 
-        Button(onClick = { onSubmit(username) }) {
+        Button(modifier = Modifier.testTag(SEARCH_BUTTON), onClick = { onSubmit(username) }) {
             Text(stringResource(R.string.fetch))
         }
     }
