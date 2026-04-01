@@ -1,5 +1,6 @@
 package com.karthik.pro.engr.github.api.domain.usecase
 
+import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.karthik.pro.engr.github.api.domain.model.Owner
@@ -19,7 +20,7 @@ class GetUserReposUseCaseTest {
 
     @Test
     fun `invoke return list of repos`() = runTest {
-        val expected = Result.Success<List<Repo>>(
+        val expected = PagingData.from(
             listOf(
                 Repo(
                     id = 1069192744,
@@ -40,12 +41,12 @@ class GetUserReposUseCaseTest {
             )
         )
         coEvery {
-            repo.getUserRepos("karthik-pro-engr", 30, 1)
+            repo.getUserRepos("karthik-pro-engr")
         } returns kotlinx.coroutines.flow.flow {
             emit(expected)
         }
 
-        useCase.invoke("karthik-pro-engr", 30, 1).test {
+        useCase.invoke("karthik-pro-engr").test {
             val item = awaitItem()
             assertThat(item).isEqualTo(expected)
             cancelAndIgnoreRemainingEvents()
