@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.karthik.pro.engr.github.api.playground.presentation.error.PagingErrorMapper
+import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.APPEND_ERROR
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.APPEND_LOADER
 
 @Composable
@@ -23,6 +24,7 @@ fun PagingFooter(modifier: Modifier = Modifier, lazyPagingItems: LazyPagingItems
             val error = PagingErrorMapper.mapPagingError(append.error)
             Column(
                 modifier = Modifier
+                    .testTag(APPEND_ERROR)
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

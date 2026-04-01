@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.karthik.pro.engr.github.api.playground.R
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.FULL_SCREEN_RETRY_BUTTON
+import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.RETRY_BUTTON
 
 @Composable
 fun PagingError(
@@ -25,7 +25,7 @@ fun PagingError(
     )
     Spacer(modifier = Modifier.height(8.dp))
     Button(
-        modifier = Modifier.testTag(FULL_SCREEN_RETRY_BUTTON),
+        modifier = Modifier.testTag(RETRY_BUTTON),
         onClick = onClick
     ) {
         Text(stringResource(R.string.retry))
