@@ -26,4 +26,5 @@
     <string name="title_repo_list">Repositories</string>
     <string name="retry">Retry</string>
     <string name="no_repos_found">No repos found</string>
+    <string name="latest">LATEST</string>
 </resources>

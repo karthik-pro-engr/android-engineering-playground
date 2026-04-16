@@ -193,6 +193,7 @@ dependencies {
     betaImplementation(libs.karthik.pro.engr.firebase.feedback.impl)
 
     implementation(libs.paging)
+    implementation(libs.icons)
 
 
     testImplementation(libs.junit)
