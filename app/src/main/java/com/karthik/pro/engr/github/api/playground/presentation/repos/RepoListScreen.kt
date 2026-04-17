@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.domain.model.Owner
+import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
@@ -36,6 +36,7 @@ import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoL
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlin.random.Random
 
 @Composable
 fun RepoListScreen(
@@ -127,41 +128,9 @@ fun ReposSearchByUserName(
 private fun RepoListScreenPreview() {
     val reposSharedFlow = flowOf(
         PagingData.from(
-            listOf(
-                Repo(
-                    id = 1,
-                    name = "admin-tools",
-                    fullName = "karthik-pro-engr/admin-tools",
-                    description = "Automates applying branch rulesets to new repositories.",
-                    htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-                    language = "Shell",
-                    stars = 5,
-                    forks = 1,
-                    languagesUrl = "https://api.github.com/repos/karthik-pro-engr/github-api-playground/languages",
-                    owner = Owner(
-                        name = "karthik-pro-engr",
-                        id = 101930095,
-                        profilePictureUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                        htmlUrl = "https://github.com/karthik-pro-engr"
-                    )
-                ), Repo(
-                    id = 2,
-                    name = "admin-tools",
-                    fullName = "karthik-pro-engr/admin-tools",
-                    description = "Automates applying branch rulesets to new repositories.",
-                    htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-                    language = "Shell",
-                    stars = 5,
-                    forks = 1,
-                    languagesUrl = "https://api.github.com/repos/karthik-pro-engr/github-api-playground/languages",
-                    owner = Owner(
-                        name = "karthik-pro-engr",
-                        id = 101930095,
-                        profilePictureUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                        htmlUrl = "https://github.com/karthik-pro-engr"
-                    )
-                )
-            )
+            List(10){
+                RepoFactory.withId(Random.nextLong())
+            }
         )
     )
     RepoListScreen(

@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.domain.model.Owner
+import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_ITEM
 
@@ -62,22 +62,6 @@ fun RepoListItem(modifier: Modifier = Modifier, repo: Repo) {
 @Composable
 fun RepoListItemPreview() {
     RepoListItem(
-        repo = Repo(
-            id = 1,
-            name = "admin-tools",
-            fullName = "karthik-pro-engr/admin-tools",
-            description = "Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.",
-            htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-            language = "Shell",
-            stars = 5,
-            forks = 1,
-            languagesUrl = "https://api.github.com/repos/karthik-pro-engr/github-api-playground/languages",
-            owner = Owner(
-                name = "karthik-pro-engr",
-                id = 101930095,
-                profilePictureUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                htmlUrl = "https://github.com/karthik-pro-engr"
-            )
-        )
+        repo = RepoFactory.defaultRepo()
     )
 }

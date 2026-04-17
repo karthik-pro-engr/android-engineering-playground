@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import app.cash.turbine.test
 import com.karthik.pro.engr.github.api.core.testing.coroutine.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
+import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.model.Owner
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.usecase.GetUserReposUseCase
@@ -137,52 +138,21 @@ class GithubRepoListViewModelTest {
         val flowSecond = flowOf(
             PagingData.from(
                 listOf(
-                    Repo(
-                        id = 1069192744,
-                        name = "admin-tools",
-                        fullName = "karthik-pro-engr/admin-tools",
-                        description = "",
-                        htmlUrl = "https://github.com/karthik-pro-engr",
-                        language = "Shell",
-                        stars = 0,
-                        forks = 0,
-                        languagesUrl = "https://api.github.com/repos/karthik-pro-engr/admin-tools/languages",
-                        owner = Owner(
-                            name = "karthik-pro-engr",
-                            id = 101930095,
-                            profilePictureUrl = "https://avatars.githubusercontent.com/u/101930095?v=4",
-                            htmlUrl = "https://github.com/karthik-pro-engr"
-                        )
-                    ), Repo(
-                        id = 1069192745,
-                        name = "admin-tools",
-                        fullName = "karthik-pro-engr/admin-tools",
-                        description = "",
-                        htmlUrl = "https://github.com/karthik-pro-engr",
-                        language = "Shell",
-                        stars = 0,
-                        forks = 0,
-                        languagesUrl = "https://api.github.com/repos/karthik-pro-engr/admin-tools/languages",
-                        owner = Owner(
-                            name = "karthik-pro-engr",
-                            id = 101930095,
-                            profilePictureUrl = "https://avatars.githubusercontent.com/u/101930095?v=4",
-                            htmlUrl = "https://github.com/karthik-pro-engr"
-                        )
-                    )
+                    RepoFactory.withId( 1069192744),
+                    RepoFactory.withId( 1069192745),
                 )
             )
         )
 
-        coEvery { useCase("Jake") } returns flowFirst
+        coEvery { useCase("Karthik") } returns flowFirst
 
-        coEvery { useCase("JakeWharton") } returns flowSecond
+        coEvery { useCase("karthik-pro-engr") } returns flowSecond
 
-        viewModel.submitQuery("Jake")
+        viewModel.submitQuery("karthik")
 
         runCurrent()
 
-        viewModel.submitQuery("JakeWharton")
+        viewModel.submitQuery("karthik-pro-engr")
 
         viewModel.reposSharedFlow.test {
             val pagingData = awaitItem()
@@ -207,8 +177,8 @@ class GithubRepoListViewModelTest {
             assertThat(2).isEqualTo(differ.itemCount)
             assertThat(1069192745).isEqualTo(differ.getItem(1)?.id)
 
-            coVerify(exactly = 0) { useCase("Jake") }
-            coVerify(exactly = 1) { useCase("JakeWharton") }
+            coVerify(exactly = 0) { useCase("karthik") }
+            coVerify(exactly = 1) { useCase("karthik-pro-engr") }
             job.cancel()
             cancelAndIgnoreRemainingEvents()
 

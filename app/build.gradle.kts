@@ -206,9 +206,11 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(project(":core-testing"))
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":core-testing"))
+    androidTestImplementation(project(":core-testing"))
 
 }
 kapt {
