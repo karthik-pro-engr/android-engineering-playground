@@ -28,6 +28,7 @@ import com.karthik.pro.engr.feedback.api.ui.viewmodel.FeedbackEvent
 import com.karthik.pro.engr.feedback.api.ui.viewmodel.FeedbackUiEffect
 import com.karthik.pro.engr.github.api.playground.app.feedback.AppFeedbackController
 import com.karthik.pro.engr.github.api.playground.presentation.common.theme.GithubapiplaygroundTheme
+import com.karthik.pro.engr.github.api.playground.presentation.repo.RepoDetailRoute
 import com.karthik.pro.engr.github.api.playground.presentation.repos.RepoListRoute
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -121,7 +122,7 @@ fun SetContent(
                 )
             }
         ) { innerPadding ->
-            RepoListRoute(
+            RepoDetailRoute(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
