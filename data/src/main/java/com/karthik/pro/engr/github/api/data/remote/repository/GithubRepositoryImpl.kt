@@ -7,6 +7,8 @@ import com.karthik.pro.engr.github.api.data.remote.api.GithubService
 import com.karthik.pro.engr.github.api.data.remote.error.ErrorParser
 import com.karthik.pro.engr.github.api.data.remote.pagination.GithubPagingSource
 import com.karthik.pro.engr.github.api.domain.constants.PaginationConstants.DEFAULT_PAGE_SIZE
+import com.karthik.pro.engr.github.api.domain.model.Language
+import com.karthik.pro.engr.github.api.domain.model.Release
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
 import kotlinx.coroutines.flow.Flow
@@ -31,5 +33,26 @@ class GithubRepositoryImpl @Inject constructor(
                 )
             }
         ).flow
+    }
+
+    override fun getRepoDetail(
+        ownerName: String,
+        repoName: String
+    ): Flow<Repo> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLanguage(
+        ownerName: String,
+        repoName: String
+    ): Flow<List<Language>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getReleases(
+        ownerName: String,
+        repoName: String
+    ): Flow<List<Release>> {
+        TODO("Not yet implemented")
     }
 }
