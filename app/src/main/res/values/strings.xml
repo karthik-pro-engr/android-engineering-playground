@@ -30,4 +30,25 @@
     <string name="releases">Releases</string>
     <string name="languages">Languages</string>
     <string name="topics">Topics</string>
+    <string name="just_now">Just Now</string>
+    <plurals name="minutes_ago">
+        <item quantity="one">
+            %d minute ago
+        </item>
+        <item quantity="other">
+            %d minutes ago
+        </item>
+    </plurals>
+    <plurals name="hours_ago">
+         <item quantity="one">
+            %d hour ago
+        </item>
+        <item quantity="other">
+            %d hours ago
+        </item>
+    </plurals>
+
+
+    <string name="days_ago">%d days ago</string>
+    <string name="yesterday">Yesterday</string>
 </resources>
