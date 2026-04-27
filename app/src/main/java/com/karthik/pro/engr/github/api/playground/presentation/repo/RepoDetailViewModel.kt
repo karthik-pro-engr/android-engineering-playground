@@ -87,45 +87,47 @@ class RepoDetailViewModel @Inject constructor(
                         items += RepoDetailItemUi.Topics(topics)
                     }
 
-                }
-            }
+                    items+= RepoDetailItemUi.SectionTitle(UiText.StringRes(R.string.languages))
 
-            items+= RepoDetailItemUi.SectionTitle(UiText.StringRes(R.string.languages))
-
-            items += when (language) {
-                is ListUiState.Loading -> {
-                    RepoDetailItemUi.LanguageLoading
-                }
-
-                is ListUiState.Error -> {
-                    RepoDetailItemUi.LanguageError(
-                        ApiErrorMapper.parseError(language.error)
-                    )
-                }
-
-                is ListUiState.Success -> {
-                    RepoDetailItemUi.LanguageSuccess(language.data)
-                }
-            }
-            items+= RepoDetailItemUi.SectionTitle(UiText.StringRes(R.string.releases))
-
-            when (releases) {
-                is ListUiState.Error -> {
-                    items += RepoDetailItemUi.ReleaseError(ApiErrorMapper.parseError(releases.error))
-                }
-
-                ListUiState.Loading -> {
-                    items += RepoDetailItemUi.ReleaseLoading
-                }
-
-                is ListUiState.Success -> {
-                    items +=
-                        releases.data.map { release ->
-                            RepoDetailItemUi.ReleaseSuccess(release)
+                    items += when (language) {
+                        is ListUiState.Loading -> {
+                            RepoDetailItemUi.LanguageLoading
                         }
 
+                        is ListUiState.Error -> {
+                            RepoDetailItemUi.LanguageError(
+                                ApiErrorMapper.parseError(language.error)
+                            )
+                        }
+
+                        is ListUiState.Success -> {
+                            RepoDetailItemUi.LanguageSuccess(language.data)
+                        }
+                    }
+                    items+= RepoDetailItemUi.SectionTitle(UiText.StringRes(R.string.releases))
+
+                    when (releases) {
+                        is ListUiState.Error -> {
+                            items += RepoDetailItemUi.ReleaseError(ApiErrorMapper.parseError(releases.error))
+                        }
+
+                        ListUiState.Loading -> {
+                            items += RepoDetailItemUi.ReleaseLoading
+                        }
+
+                        is ListUiState.Success -> {
+                            items +=
+                                releases.data.map { release ->
+                                    RepoDetailItemUi.ReleaseSuccess(release)
+                                }
+
+                        }
+                    }
+
                 }
             }
+
+
 
             items
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
