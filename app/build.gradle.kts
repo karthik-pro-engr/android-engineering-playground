@@ -185,6 +185,7 @@ dependencies {
     implementation(libs.compose.material)
 
 
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.navigation.compose)
 
     implementation(libs.all.variants.preview)

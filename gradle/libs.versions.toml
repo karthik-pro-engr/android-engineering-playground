@@ -13,6 +13,7 @@ composeBom = "2026.01.01"
 firebaseBom = "33.2.0"
 firebase = "5.1.1"
 icons = "1.7.8"
+navigationComposeVersion = "2.9.7"
 # Kotlin / Coroutines
 coroutines = "1.10.2"
 ksp = "2.3.0"
@@ -105,6 +106,7 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 # --- Compose ---
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
 compose-material = { module = "androidx.compose.material:material", version.ref = "compose-ui" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 
 # --- Compose + Hilt ---
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
