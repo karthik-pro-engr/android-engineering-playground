@@ -3,6 +3,10 @@
     <string name="github_username">GitHub username</string>
     <string name="fetch">Fetch</string>
 
+    <string name="github_repo_explorer">GitHub Repository Explorer</string>
+
+    <string name="enter_github_username">Enter a GitHub username to explore repositories</string>
+
     <!-- placeholders / empty states -->
     <string name="repos_placeholder_provided_username">Provided username repos will be shown here</string>
     <string name="repos_label_username">Enter Username</string>
@@ -13,7 +17,7 @@
     <string name="action_retry">Retry</string>
 
     <!-- input hint -->
-    <string name="repos_info">after providing username, the corresponding user\'s Repos will be shown here</string>
+    <string name="repos_info">Discover repositories from any public GitHub profile.</string>
 
     <!-- loading / errors -->
     <string name="loading_initial">Loading…</string>
@@ -26,4 +30,33 @@
     <string name="title_repo_list">Repositories</string>
     <string name="retry">Retry</string>
     <string name="no_repos_found">No repos found</string>
+    <string name="latest">LATEST</string>
+    <string name="releases">Releases</string>
+    <string name="languages">Languages</string>
+    <string name="topics">Topics</string>
+    <string name="just_now">Just Now</string>
+    <plurals name="minutes_ago">
+        <item quantity="one">
+            %d minute ago
+        </item>
+        <item quantity="other">
+            %d minutes ago
+        </item>
+    </plurals>
+    <plurals name="hours_ago">
+         <item quantity="one">
+            %d hour ago
+        </item>
+        <item quantity="other">
+            %d hours ago
+        </item>
+    </plurals>
+
+
+    <string name="days_ago">%d days ago</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="back">Back</string>
+    <string name="no_topics">There are No Topics</string>
+    <string name="no_releases">There are no releases yet</string>
+    <string name="no_languages">There are no languages</string>
 </resources>

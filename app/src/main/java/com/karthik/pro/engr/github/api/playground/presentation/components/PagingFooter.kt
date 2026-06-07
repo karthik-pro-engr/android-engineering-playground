@@ -29,7 +29,7 @@ fun PagingFooter(modifier: Modifier = Modifier, lazyPagingItems: LazyPagingItems
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PagingError(
+                ErrorUi(
                     error = error,
                     onClick = { lazyPagingItems.retry() })
             }

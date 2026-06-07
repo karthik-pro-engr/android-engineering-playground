@@ -22,4 +22,5 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)
+    testImplementation(project(":core-testing"))
 }

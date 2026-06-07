@@ -26,6 +26,8 @@ class SafeApiCallTest {
                 language = "Kotlin",
                 stargazers_count = 0,
                 forks_count = 0,
+                topics = emptyList(),
+                languages_url = "https://api.github.com/repos/karthik-pro-engr/algo-compose/languages",
                 owner = GitHubOwnerDto(
                     login = "karthik-pro-engr",
                     id = 101930095,

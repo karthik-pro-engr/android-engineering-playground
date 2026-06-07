@@ -14,7 +14,7 @@ import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.RETRY_BUTTON
 
 @Composable
-fun PagingError(
+fun ErrorUi(
     modifier: Modifier = Modifier,
     error: String,
     onClick: () -> Unit

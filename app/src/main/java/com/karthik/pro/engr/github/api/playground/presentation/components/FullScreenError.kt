@@ -20,7 +20,7 @@ fun FullScreenError(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PagingError(error = error,
+        ErrorUi(error = error,
             onClick = onRetry)
     }
 }

@@ -7,7 +7,9 @@ data class GitHubRepoDto(
     val description: String?,
     val html_url: String,
     val language: String?,
+    val languages_url: String,
     val stargazers_count: Int,
     val forks_count: Int,
+    val topics:List<String>,
     val owner: GitHubOwnerDto
 )

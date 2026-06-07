@@ -1,12 +1,5 @@
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToIndex
-import androidx.compose.ui.test.performTextInput
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -15,19 +8,10 @@ import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.constants.PaginationConstants.DEFAULT_PAGE_SIZE
-import com.karthik.pro.engr.github.api.domain.model.Owner
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.APPEND_ERROR
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.APPEND_LOADER
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.FULL_SCREEN_ERROR
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.FULL_SCREEN_LOADER
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_ITEM
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_LIST
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.RETRY_BUTTON
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
 import com.karthik.pro.engr.github.api.playground.presentation.repos.RepoListItem
 import com.karthik.pro.engr.github.api.playground.presentation.repos.ReposSearchByUserName
 import com.karthik.pro.engr.github.api.playground.repos.robot.repoListRobot
@@ -223,23 +207,7 @@ class RepoListScreenTest {
         }
 
         private fun repos(): List<Repo> = List(10) {
-            Repo(
-                id = Random.nextLong(),
-                name = "admin-tools",
-                fullName = "karthik-pro-engr/admin-tools",
-                description = "",
-                htmlUrl = "https://github.com/karthik-pro-engr",
-                language = "Shell",
-                stars = 0,
-                forks = 0,
-                owner = Owner(
-                    login = "karthik-pro-engr",
-                    id = 101930095,
-                    avatarUrl = "https://avatars.githubusercontent.com/u/101930095?v=4",
-                    htmlUrl = "https://github.com/karthik-pro-engr"
-                )
-            )
-
+            RepoFactory.withId(Random.nextLong())
         }
 
         override fun getRefreshKey(state: PagingState<Int, Repo>): Int? = null

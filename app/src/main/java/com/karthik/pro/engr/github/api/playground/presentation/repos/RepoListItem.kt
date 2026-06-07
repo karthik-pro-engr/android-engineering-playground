@@ -1,12 +1,13 @@
 package com.karthik.pro.engr.github.api.playground.presentation.repos
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,19 +16,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.domain.model.Owner
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_ITEM
 
 @Composable
-fun RepoListItem(modifier: Modifier = Modifier, repo: Repo) {
+fun RepoListItem(
+    modifier: Modifier = Modifier, repo: Repo,
+    onRepoClick: (String, String) -> Unit
+) {
 
     Column(
-        Modifier
+        modifier
             .testTag(REPO_ITEM)
             .fillMaxWidth()
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+            .clickable {
+                onRepoClick(repo.owner.name, repo.name)
+            }
     ) {
         Text(
             repo.fullName,
@@ -53,30 +58,7 @@ fun RepoListItem(modifier: Modifier = Modifier, repo: Repo) {
                 style = MaterialTheme.typography.bodySmall, modifier = modifier.padding(5.dp)
             )
         }
-        Divider()
+        HorizontalDivider()
     }
 
-}
-
-@AllVariantsPreview
-@Composable
-fun RepoListItemPreview() {
-    RepoListItem(
-        repo = Repo(
-            id = 1,
-            name = "admin-tools",
-            fullName = "karthik-pro-engr/admin-tools",
-            description = "Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.Automates applying branch rulesets to new repositories.",
-            htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-            language = "Shell",
-            stars = 5,
-            forks = 1,
-            owner = Owner(
-                login = "karthik-pro-engr",
-                id = 101930095,
-                avatarUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                htmlUrl = "https://github.com/karthik-pro-engr"
-            )
-        )
-    )
 }

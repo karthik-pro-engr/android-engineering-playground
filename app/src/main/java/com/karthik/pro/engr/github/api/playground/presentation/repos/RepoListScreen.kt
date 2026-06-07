@@ -27,22 +27,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.domain.model.Owner
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
-import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_ITEM
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun RepoListScreen(
     modifier: Modifier = Modifier,
     currentQuery: String?,
     reposSharedFlow: Flow<PagingData<Repo>>,
+    onRepoClick: (String, String) -> Unit,
     onSubmit: (String) -> Unit,
 ) {
 
@@ -51,6 +48,29 @@ fun RepoListScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
+        Text(
+            text = stringResource(
+                R.string.github_repo_explorer
+            ),
+
+            style =
+                MaterialTheme.typography.headlineSmall
+        )
+
+        Text(
+            text = stringResource(
+                R.string.enter_github_username
+            ),
+
+            style =
+                MaterialTheme.typography.bodyMedium,
+
+            color =
+                MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(24.dp))
 
         ReposSearchByUserName(
             currentQuery = currentQuery,
@@ -82,7 +102,8 @@ fun RepoListScreen(
                 }
             }) { repo ->
                 RepoListItem(
-                    repo = repo
+                    repo = repo,
+                    onRepoClick = onRepoClick
                 )
             }
 
@@ -122,50 +143,3 @@ fun ReposSearchByUserName(
     }
 }
 
-
-@AllVariantsPreview
-@Composable
-private fun RepoListScreenPreview() {
-    val reposSharedFlow = flowOf(
-        PagingData.from(
-            listOf(
-                Repo(
-                    id = 1,
-                    name = "admin-tools",
-                    fullName = "karthik-pro-engr/admin-tools",
-                    description = "Automates applying branch rulesets to new repositories.",
-                    htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-                    language = "Shell",
-                    stars = 5,
-                    forks = 1,
-                    owner = Owner(
-                        login = "karthik-pro-engr",
-                        id = 101930095,
-                        avatarUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                        htmlUrl = "https://github.com/karthik-pro-engr"
-                    )
-                ), Repo(
-                    id = 2,
-                    name = "admin-tools",
-                    fullName = "karthik-pro-engr/admin-tools",
-                    description = "Automates applying branch rulesets to new repositories.",
-                    htmlUrl = "https://github.com/karthik-pro-engr/admin-tools",
-                    language = "Shell",
-                    stars = 5,
-                    forks = 1,
-                    owner = Owner(
-                        login = "karthik-pro-engr",
-                        id = 101930095,
-                        avatarUrl = "https://avatars.githubusercontent.com/u/101930095?v=",
-                        htmlUrl = "https://github.com/karthik-pro-engr"
-                    )
-                )
-            )
-        )
-    )
-    RepoListScreen(
-        currentQuery = "",
-        reposSharedFlow = reposSharedFlow,
-        onSubmit = { println("clicked") }
-    )
-}
