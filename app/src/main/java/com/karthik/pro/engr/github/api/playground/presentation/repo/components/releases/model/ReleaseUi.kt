@@ -8,9 +8,5 @@ data class ReleaseUi(
     val version: String,
     val date: RelativeTime,
     val isLatest: Boolean,
-    val description: String,
-    val authorName: String,
-    val authorAvatar: String,
-    val isStable: Boolean,
-    val assets: List<Asset>
+    val description: String
 )

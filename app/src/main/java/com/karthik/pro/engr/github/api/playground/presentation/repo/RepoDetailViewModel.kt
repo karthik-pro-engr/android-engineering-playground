@@ -3,10 +3,10 @@ package com.karthik.pro.engr.github.api.playground.presentation.repo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
 import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Language
+import com.karthik.pro.engr.github.api.domain.result.Result
 import com.karthik.pro.engr.github.api.domain.usecase.GetLanguageUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.GetReleasesUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.GetRepoDetailUseCase
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -136,8 +135,10 @@ class RepoDetailViewModel @Inject constructor(
                         }
 
                         is ListUiState.Success -> {
-                            items +=
-                                releases.data.map { release ->
+                            if (releases.data.isEmpty()) {
+                                items += RepoDetailItemUi.NoReleases
+                            } else
+                                items += releases.data.map { release ->
                                     RepoDetailItemUi.ReleaseSuccess(release)
                                 }
 
@@ -156,30 +157,7 @@ class RepoDetailViewModel @Inject constructor(
 
 
     init {
-
-
-            _repoUiState.value =
-                RepoDetailUiState.Success(
-                    RepoFactory.defaultRepo()
-                        .toRepoDetailUi()
-                )
-
-            _languageUiState.value =
-                ListUiState.Success(
-                    RepoFactory.defaultLanguages()
-                        .toLanguageList()
-                )
-
-            _releasesUiState.value =
-                ListUiState.Success(
-                    RepoFactory.defaultReleases().map {
-                        it.toReleaseUi(
-                            RelativeTimeFormatter()
-                        )
-                    }
-                )
-
-//        loadRepoDetail(owner, repoName)
+        loadRepoDetail(owner, repoName)
     }
 
 
@@ -197,18 +175,20 @@ class RepoDetailViewModel @Inject constructor(
         _releasesUiState.value = ListUiState.Loading
 
         viewModelScope.launch {
-            try {
 
-                val repo = getRepoDetailUseCase(owner, repoName).first()
-                _repoUiState.value = RepoDetailUiState.Success(repo.toRepoDetailUi())
-
-                coroutineScope {
-                    launch { loadLanguages(owner, repoName) }
-                    launch { loadReleases(owner, repoName) }
+            when (val result = getRepoDetailUseCase(owner, repoName)) {
+                is Result.Failure -> {
+                    _repoUiState.value =
+                        RepoDetailUiState.Error(ApiErrorMapper.parseError(result.error))
                 }
 
-            } catch (e: Exception) {
-                _repoUiState.value = RepoDetailUiState.Error("")
+                is Result.Success -> {
+                    _repoUiState.value = RepoDetailUiState.Success(result.data.toRepoDetailUi())
+                    coroutineScope {
+                        launch { loadLanguages(owner, repoName) }
+                        launch { loadReleases(owner, repoName) }
+                    }
+                }
             }
 
         }
@@ -218,34 +198,39 @@ class RepoDetailViewModel @Inject constructor(
     private fun loadLanguages(owner: String, repoName: String) {
         languageJob?.cancel()
         languageJob = viewModelScope.launch {
-            try {
 
-                val languages = getLanguageUseCase(owner, repoName).first()
+            when (val languagesResult = getLanguageUseCase(owner, repoName)) {
+                is Result.Failure -> _languageUiState.value =
+                    ListUiState.Error(languagesResult.error)
 
-                _languageUiState.value = ListUiState.Success(languages)
-
-            } catch (e: Exception) {
-                _languageUiState.value = ListUiState.Error(DomainError.Unknown)
+                is Result.Success -> {
+                    _languageUiState.value =
+                        ListUiState.Success(languagesResult.data.toLanguageList())
+                }
             }
+
         }
     }
 
     private fun loadReleases(ownerName: String, repoName: String) {
         releaseJob?.cancel()
         releaseJob = viewModelScope.launch {
-            try {
-                val releases = getReleasesUseCase(ownerName, repoName).first()
 
-                val formatter = RelativeTimeFormatter()
-                val releaseUis = releases.map {
-                    it.toReleaseUi(formatter)
+            when (val releasesResult = getReleasesUseCase(ownerName, repoName)) {
+                is Result.Success -> {
+                    val formatter = RelativeTimeFormatter()
+                    val releaseUis = releasesResult.data.map {
+                        it.toReleaseUi(formatter)
+                    }
+
+                    _releasesUiState.value = ListUiState.Success(releaseUis)
                 }
 
-                _releasesUiState.value = ListUiState.Success(releaseUis)
-
-            } catch (e: Exception) {
-                _releasesUiState.value = ListUiState.Error(DomainError.Unknown)
+                is Result.Failure -> {
+                    _releasesUiState.value = ListUiState.Error(DomainError.Unknown)
+                }
             }
+
         }
     }
 

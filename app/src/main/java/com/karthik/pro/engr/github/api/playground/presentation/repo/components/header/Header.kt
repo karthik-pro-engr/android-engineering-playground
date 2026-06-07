@@ -1,6 +1,7 @@
 package com.karthik.pro.engr.github.api.playground.presentation.repo.components.header
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,7 +22,7 @@ fun Header(
     headerUi: HeaderUi
 ) {
     Column(
-        modifier = Modifier.testTag(HEADER)
+        modifier = Modifier.fillMaxWidth().testTag(HEADER)
     ) {
         with(headerUi) {
             Text(

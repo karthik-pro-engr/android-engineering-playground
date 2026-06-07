@@ -1,5 +1,6 @@
 package com.karthik.pro.engr.github.api.playground.di
 
+import com.karthik.pro.engr.github.api.data.remote.repository.GithubRepositoryImpl
 import com.karthik.pro.engr.github.api.data.repository.FakeRepository
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
 import dagger.Binds
@@ -14,7 +15,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindsGithubRepository(githubRepositoryImpl: FakeRepository): GithubRepository
+    abstract fun bindsGithubRepository(githubRepositoryImpl: GithubRepositoryImpl): GithubRepository
 
 
 }

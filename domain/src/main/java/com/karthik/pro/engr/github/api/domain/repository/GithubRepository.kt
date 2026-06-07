@@ -1,9 +1,11 @@
 package com.karthik.pro.engr.github.api.domain.repository
 
 import androidx.paging.PagingData
+import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Language
 import com.karthik.pro.engr.github.api.domain.model.Release
 import com.karthik.pro.engr.github.api.domain.model.Repo
+import com.karthik.pro.engr.github.api.domain.result.Result
 import kotlinx.coroutines.flow.Flow
 
 
@@ -12,18 +14,18 @@ interface GithubRepository {
         username: String
     ): Flow<PagingData<Repo>>
 
-    fun getRepoDetail(
+    suspend fun getRepoDetail(
         ownerName: String,
         repoName: String
-    ): Flow<Repo>
+    ): Result<Repo, DomainError>
 
-    fun getLanguage(
+    suspend fun getLanguage(
         ownerName: String,
         repoName: String
-    ): Flow<List<Language>>
+    ): Result<Map<String, Long>, DomainError>
 
-    fun getReleases(
+    suspend fun getReleases(
         ownerName: String,
         repoName: String
-    ): Flow<List<Release>>
+    ): Result<List<Release>, DomainError>
 }

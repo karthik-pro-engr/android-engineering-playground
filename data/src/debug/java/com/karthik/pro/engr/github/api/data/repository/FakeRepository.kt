@@ -3,10 +3,12 @@ package com.karthik.pro.engr.github.api.data.repository
 import androidx.paging.PagingData
 import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
+import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Language
 import com.karthik.pro.engr.github.api.domain.model.Release
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
+import com.karthik.pro.engr.github.api.domain.result.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
@@ -20,19 +22,19 @@ class FakeRepository @Inject constructor() : GithubRepository {
         )
     )
 
-    override fun getRepoDetail(
+    override suspend fun getRepoDetail(
         ownerName: String,
         repoName: String
-    ): Flow<Repo> = flowOf(RepoFactory.defaultRepo())
+    ): Result<Repo, DomainError> = Result.Success(RepoFactory.defaultRepo())
 
 
-    override fun getLanguage(
+    override suspend fun getLanguage(
         ownerName: String,
         repoName: String
-    ): Flow<List<Language>> = flowOf(RepoFactory.defaultLanguages().toLanguageList())
+    ): Result<Map<String, Long>, DomainError> = Result.Success(RepoFactory.defaultLanguages())
 
-    override fun getReleases(
+    override suspend fun getReleases(
         ownerName: String,
         repoName: String
-    ): Flow<List<Release>> = flowOf(RepoFactory.defaultReleases())
+    ): Result<List<Release>, DomainError> = Result.Success(RepoFactory.defaultReleases())
 }

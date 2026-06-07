@@ -5,7 +5,7 @@ import com.karthik.pro.engr.github.api.domain.model.Language
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-fun Map<String, Int>.toLanguageList(): List<Language> {
+fun Map<String, Long>.toLanguageList(): List<Language> {
     val total = values.sum()
     return map { (name, bytes) ->
         Language(

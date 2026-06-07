@@ -2,6 +2,7 @@ package com.karthik.pro.engr.github.api.playground.presentation.repo.components.
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +18,7 @@ fun Topics(
     topics: List<String>
 ) {
     FlowRow(
-        modifier = Modifier.testTag(RepoDetailTestTags.TOPICS),
+        modifier = Modifier.fillMaxWidth().testTag(RepoDetailTestTags.TOPICS),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

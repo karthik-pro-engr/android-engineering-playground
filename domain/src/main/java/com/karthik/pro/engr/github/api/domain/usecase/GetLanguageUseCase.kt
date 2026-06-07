@@ -7,10 +7,8 @@ import javax.inject.Inject
 
 class GetLanguageUseCase @Inject constructor(private val repository: GithubRepository) {
 
-    operator fun invoke(
+    suspend operator fun invoke(
         ownerName: String,
         repoName: String
-    ): Flow<List<Language>> {
-        return repository.getLanguage(ownerName, repoName)
-    }
+    ) = repository.getLanguage(ownerName, repoName)
 }

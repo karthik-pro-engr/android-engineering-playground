@@ -56,4 +56,7 @@
     <string name="days_ago">%d days ago</string>
     <string name="yesterday">Yesterday</string>
     <string name="back">Back</string>
+    <string name="no_topics">There are No Topics</string>
+    <string name="no_releases">There are no releases yet</string>
+    <string name="no_languages">There are no languages</string>
 </resources>

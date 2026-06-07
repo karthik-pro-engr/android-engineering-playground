@@ -20,6 +20,7 @@ sealed class RepoDetailItemUi {
     data class ReleaseError(val message: String) : RepoDetailItemUi()
     data object ReleaseLoading : RepoDetailItemUi()
     data class ReleaseSuccess(val data: ReleaseUi) : RepoDetailItemUi()
+    data object NoReleases : RepoDetailItemUi()
 }
 
 fun RepoDetailItemUi.key(): String = when (this) {
@@ -46,4 +47,5 @@ fun RepoDetailItemUi.key(): String = when (this) {
     RepoDetailItemUi.ReleaseLoading -> "release_loading"
     is RepoDetailItemUi.ReleaseError -> "release_error"
     is RepoDetailItemUi.ReleaseSuccess -> "release_${data.id}"
+    is RepoDetailItemUi.NoReleases -> "no_release"
 }

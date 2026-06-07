@@ -26,6 +26,7 @@ import com.karthik.pro.engr.github.api.playground.presentation.components.FullSc
 import com.karthik.pro.engr.github.api.playground.presentation.components.SectionHeader
 import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dimens
 import com.karthik.pro.engr.github.api.playground.presentation.preview.fakeItems
+import com.karthik.pro.engr.github.api.playground.presentation.repo.components.NoData
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.header.Header
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.language.Language
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.releases.ReleaseItem
@@ -70,14 +71,13 @@ fun RepoDetailScreen(
                 )
             )
         }
-    ) {
-        innerPadding ->
+    ) { innerPadding ->
 
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(vertical = Dimens.large)
+            contentPadding = PaddingValues(horizontal = Dimens.large, vertical = Dimens.large)
         ) {
 
 
@@ -103,7 +103,12 @@ fun RepoDetailScreen(
 
                     is RepoDetailItemUi.Stats -> Stats(statsUi = repoDetailItemUi.statsUi)
 
-                    is RepoDetailItemUi.Topics -> Topics(topics = repoDetailItemUi.topics)
+                    is RepoDetailItemUi.Topics -> {
+                        if (repoDetailItemUi.topics.isEmpty()) {
+                            NoData(value = R.string.no_topics)
+                        } else
+                            Topics(topics = repoDetailItemUi.topics)
+                    }
 
                     is RepoDetailItemUi.LanguageError -> ErrorUi(
                         error = repoDetailItemUi.message,
@@ -113,7 +118,11 @@ fun RepoDetailScreen(
                     RepoDetailItemUi.LanguageLoading -> CircularProgressIndicator()
 
                     is RepoDetailItemUi.LanguageSuccess -> {
-                        Language(languagesList = repoDetailItemUi.data)
+                        if (repoDetailItemUi.data.isEmpty()) {
+                            NoData(value = R.string.no_languages)
+                        } else {
+                            Language(languagesList = repoDetailItemUi.data)
+                        }
                     }
 
 
@@ -126,6 +135,10 @@ fun RepoDetailScreen(
 
                     is RepoDetailItemUi.ReleaseSuccess -> {
                         ReleaseItem(repoDetailItemUi.data) { }
+                    }
+
+                    is RepoDetailItemUi.NoReleases -> {
+                        NoData(value = R.string.no_releases)
                     }
 
                 }

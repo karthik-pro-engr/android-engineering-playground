@@ -44,12 +44,11 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController) 
                 uriPattern = REPO_DETAIL_DEEP_LINK
             })
         ) {
-            RepoDetailRoute {
+            RepoDetailRoute(modifier = modifier) {
                 navController.navigateUp()
             }
         }
     }
-
 
 
 }

@@ -29,11 +29,7 @@ fun Release.toReleaseUi(dateFormatter: DateFormatter) = ReleaseUi(
     version = version,
     date = dateFormatter.format(isoDate = date),
     description = description,
-    authorName = authorName,
-    authorAvatar = authorAvatar,
-    isStable = isStable,
-    isLatest = true,
-    assets = assets
+    isLatest = true
 )
 
 

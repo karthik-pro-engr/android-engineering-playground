@@ -1,16 +1,16 @@
 package com.karthik.pro.engr.github.api.domain.usecase
 
 
+import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
+import com.karthik.pro.engr.github.api.domain.result.Result
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetRepoDetailUseCase @Inject constructor(private val repository: GithubRepository) {
-    operator fun invoke(
+    suspend operator fun invoke(
         ownerName: String,
         repoName: String
-    ): Flow<Repo> {
-        return repository.getRepoDetail(ownerName, repoName)
-    }
+    ) = repository.getRepoDetail(ownerName, repoName)
 }

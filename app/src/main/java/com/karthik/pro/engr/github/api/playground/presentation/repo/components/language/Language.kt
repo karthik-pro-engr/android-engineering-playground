@@ -24,7 +24,7 @@ fun Language(languagesList: List<Language>) {
 
     val max = languagesList.maxOfOrNull { it.percentage } ?: 1f
 
-    Column(verticalArrangement = Arrangement.spacedBy(Dimens.medium)) {
+    Column(modifier = Modifier.fillMaxWidth(),verticalArrangement = Arrangement.spacedBy(Dimens.medium)) {
 
         languagesList.forEach { language ->
 
