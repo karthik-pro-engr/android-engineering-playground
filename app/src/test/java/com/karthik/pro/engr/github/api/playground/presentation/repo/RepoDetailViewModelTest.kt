@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
+import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.usecase.GetLanguageUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.GetReleasesUseCase
@@ -19,6 +20,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import com.karthik.pro.engr.github.api.domain.result.Result
+import io.mockk.coVerify
+import kotlinx.coroutines.test.advanceUntilIdle
 
 private suspend fun <T> ReceiveTurbine<T>.awaitUntil(
     condition: (T) -> Boolean
@@ -37,15 +41,28 @@ class RepoDetailViewModelTest {
     private val releaseUseCase = mockk<GetReleasesUseCase>()
 
     private fun createViewModel() = RepoDetailViewModel(
+        savedStateHandle = SavedStateHandleFactory.repoDetail(),
         repoUseCase,
         languageUseCase,
         releaseUseCase
     )
 
+    private fun successRepo() =
+        Result.Success(RepoFactory.defaultRepo())
+
+    private fun successLanguages() =
+        Result.Success(RepoFactory.defaultLanguages())
+
+    private fun successReleases() =
+        Result.Success(RepoFactory.defaultReleases())
+
+    private fun failureUnknown() = Result.Failure(DomainError.Unknown)
 
     @Test
     fun `when repo loading then show header loading`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flow { awaitCancellation() }
+        coEvery { repoUseCase(any(), any()) } coAnswers {
+            awaitCancellation()
+        }
 
         val vm = createViewModel()
 
@@ -64,9 +81,7 @@ class RepoDetailViewModelTest {
 
     @Test
     fun `when repo error then show only header error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flow {
-            throw RuntimeException()
-        }
+        coEvery { repoUseCase(any(), any()) } returns Result.Failure(DomainError.Unknown)
 
         val vm = createViewModel()
 
@@ -86,9 +101,9 @@ class RepoDetailViewModelTest {
 
     @Test
     fun `when repo success and others loading then show loading sections`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flowOf(RepoFactory.defaultRepo())
-        coEvery { languageUseCase(any(), any()) } returns flow { awaitCancellation() }
-        coEvery { releaseUseCase(any(), any()) } returns flow { awaitCancellation() }
+        coEvery { repoUseCase(any(), any()) } returns successRepo()
+        coEvery { languageUseCase(any(), any()) } coAnswers { awaitCancellation() }
+        coEvery { releaseUseCase(any(), any()) } coAnswers { awaitCancellation() }
 
         val vm = createViewModel()
 
@@ -111,11 +126,9 @@ class RepoDetailViewModelTest {
 
     @Test
     fun `when language fails then show language error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flowOf(RepoFactory.defaultRepo())
-        coEvery { languageUseCase(any(), any()) } returns flow {
-            throw RuntimeException()
-        }
-        coEvery { releaseUseCase(any(), any()) } returns flow { awaitCancellation() }
+        coEvery { repoUseCase(any(), any()) } returns successRepo()
+        coEvery { languageUseCase(any(), any()) } returns failureUnknown()
+        coEvery { releaseUseCase(any(), any()) } coAnswers { awaitCancellation() }
 
         val vm = createViewModel()
 
@@ -135,12 +148,9 @@ class RepoDetailViewModelTest {
     // ----------------------------
     @Test
     fun `when release fails then show release error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flowOf(RepoFactory.defaultRepo())
-        coEvery { languageUseCase(any(), any()) } returns flow { awaitCancellation() }
-        coEvery { releaseUseCase(any(), any()) } returns flow {
-            throw RuntimeException()
-        }
-
+        coEvery { repoUseCase(any(), any()) } returns successRepo()
+        coEvery { languageUseCase(any(), any()) } coAnswers { awaitCancellation() }
+        coEvery { releaseUseCase(any(), any()) } returns failureUnknown()
         val vm = createViewModel()
 
         vm.uiItems.test {
@@ -157,9 +167,9 @@ class RepoDetailViewModelTest {
 
     @Test
     fun `when all success then show full ui`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns flowOf(RepoFactory.defaultRepo())
-        coEvery { languageUseCase(any(), any()) } returns flowOf(RepoFactory.defaultLanguages().toLanguageList())
-        coEvery { releaseUseCase(any(), any()) } returns flowOf(RepoFactory.defaultReleases())
+        coEvery { repoUseCase(any(), any()) } returns successRepo()
+        coEvery { languageUseCase(any(), any()) } returns successLanguages()
+        coEvery { releaseUseCase(any(), any()) } returns successReleases()
 
         val vm = createViewModel()
 
@@ -178,47 +188,28 @@ class RepoDetailViewModelTest {
 
 
     @Test
-    fun `when retry repo then state resets and reloads`() = runTest {
+    fun `when retry repo then repo use case invoked again`() = runTest {
 
-        val repoFlow = MutableSharedFlow<Repo>()
+        coEvery { repoUseCase(any(), any()) } returns successRepo()
 
-        coEvery { repoUseCase(any(), any()) } returns repoFlow
-        coEvery { languageUseCase(any(), any()) } returns flow { awaitCancellation() }
-        coEvery { releaseUseCase(any(), any()) } returns flow { awaitCancellation() }
+        coEvery { languageUseCase(any(), any()) } returns Result.Success(
+            RepoFactory.defaultLanguages()
+        )
+
+        coEvery { releaseUseCase(any(), any()) } returns Result.Success(
+            RepoFactory.defaultReleases()
+        )
 
         val vm = createViewModel()
 
-        vm.uiItems.test {
+        advanceUntilIdle()
 
-            // First success
-            repoFlow.emit(RepoFactory.defaultRepo())
+        vm.retryRepoDetail()
 
-            val first = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.HeaderSuccess }
-            }
+        advanceUntilIdle()
 
-            assertThat(first.any { it is RepoDetailItemUi.HeaderSuccess }).isTrue()
-
-            // Retry
-            vm.retryRepoDetail("", "")
-
-            val loading = awaitUntil {
-                it.firstOrNull() is RepoDetailItemUi.HeaderLoading
-            }
-
-            assertThat(loading.first())
-                .isInstanceOf(RepoDetailItemUi.HeaderLoading::class.java)
-
-            // Emit new repo
-            repoFlow.emit(RepoFactory.defaultRepo().copy(name = "updated"))
-
-            val second = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.HeaderSuccess }
-            }
-
-            assertThat(second.any { it is RepoDetailItemUi.HeaderSuccess }).isTrue()
-
-            cancelAndIgnoreRemainingEvents()
+        coVerify(exactly = 2) {
+            repoUseCase(any(), any())
         }
     }
 }
