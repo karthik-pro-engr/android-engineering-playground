@@ -27,16 +27,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlin.random.Random
 
 @Composable
 fun RepoListScreen(
@@ -147,20 +143,3 @@ fun ReposSearchByUserName(
     }
 }
 
-
-@AllVariantsPreview
-@Composable
-private fun RepoListScreenPreview() {
-    val reposSharedFlow = flowOf(
-        PagingData.from(
-            List(10) {
-                RepoFactory.withId(Random.nextLong())
-            }
-        )
-    )
-    RepoListScreen(
-        currentQuery = "",
-        reposSharedFlow = reposSharedFlow,
-        onRepoClick = { _,_ -> }
-    ) { println("clicked") }
-}

@@ -1,7 +1,6 @@
 package com.karthik.pro.engr.github.api.playground.di
 
 import com.karthik.pro.engr.github.api.data.remote.repository.GithubRepositoryImpl
-import com.karthik.pro.engr.github.api.data.repository.FakeRepository
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
 import dagger.Binds
 import dagger.Module

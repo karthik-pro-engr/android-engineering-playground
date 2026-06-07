@@ -1,4 +1,4 @@
-package com.karthik.pro.engr.github.api.playground.presentation.preview
+package com.karthik.pro.engr.github.api.playground.app.preview
 
 import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList

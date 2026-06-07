@@ -22,16 +22,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.time.RelativeTime
 import com.karthik.pro.engr.github.api.playground.R
-import com.karthik.pro.engr.github.api.playground.presentation.common.formatter.RelativeTimeFormatter
 import com.karthik.pro.engr.github.api.playground.presentation.components.Badge
 import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dimens
 import com.karthik.pro.engr.github.api.playground.presentation.repo.RepoDetailTestTags.RELEASE_ITEM
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.releases.model.ReleaseUi
-import com.karthik.pro.engr.github.api.playground.presentation.repo.mapper.toReleaseUi
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -106,12 +102,4 @@ fun RelativeTime.toUiString(): String {
         }
 
     }
-}
-
-@AllVariantsPreview
-@Composable
-private fun ReleaseItemPreview() {
-    ReleaseItem(
-        RepoFactory.defaultReleaseItem().toReleaseUi(RelativeTimeFormatter())
-    ) { }
 }

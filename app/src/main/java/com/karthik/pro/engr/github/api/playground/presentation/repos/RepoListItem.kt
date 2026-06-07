@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.REPO_ITEM
 
@@ -63,12 +61,4 @@ fun RepoListItem(
         HorizontalDivider()
     }
 
-}
-
-@AllVariantsPreview
-@Composable
-fun RepoListItemPreview() {
-    RepoListItem(
-        repo = RepoFactory.defaultRepo()
-    ) { _, _ -> }
 }

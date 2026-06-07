@@ -19,13 +19,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.karthik.pro.engr.devtools.AllVariantsPreview
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.components.ErrorUi
 import com.karthik.pro.engr.github.api.playground.presentation.components.FullScreenLoader
 import com.karthik.pro.engr.github.api.playground.presentation.components.SectionHeader
 import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dimens
-import com.karthik.pro.engr.github.api.playground.presentation.preview.fakeItems
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.NoData
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.header.Header
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.language.Language
@@ -147,20 +145,6 @@ fun RepoDetailScreen(
         }
 
     }
-}
-
-@AllVariantsPreview
-@Composable
-private fun RepoListScreenPreview() {
-    RepoDetailScreen(
-        items = fakeItems(),
-        repoName = "Github-api-playground",
-        onBack = {},
-        onRepoRetry = {},
-        onLanguageRetry = {},
-        onReleaseRetry = {},
-    )
-
 }
 
 

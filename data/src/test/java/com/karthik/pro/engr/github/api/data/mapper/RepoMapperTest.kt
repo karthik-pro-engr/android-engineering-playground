@@ -25,7 +25,8 @@ class RepoMapperTest {
                 avatar_url = "https://avatars.githubusercontent.com/u/101930095?v=4",
                 html_url = "https://github.com/karthik-pro-engr"
             ),
-            html_url = "https://github.com/karthik-pro-engr"
+            html_url = "https://github.com/karthik-pro-engr",
+            topics = emptyList()
         )
         val domainRepo = RepoMapper.fromDto(dto)
         assertThat(domainRepo.id).isEqualTo(123)

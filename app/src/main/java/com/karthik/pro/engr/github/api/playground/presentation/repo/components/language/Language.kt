@@ -11,9 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.karthik.pro.engr.devtools.AllVariantsPreview
-import com.karthik.pro.engr.github.api.core.testing.RepoFactory
-import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
 import com.karthik.pro.engr.github.api.domain.model.Language
 import com.karthik.pro.engr.github.api.playground.presentation.common.formatter.PercentageFormatter
 import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dimens
@@ -50,11 +47,3 @@ fun Language(languagesList: List<Language>) {
     }
 }
 
-
-@AllVariantsPreview
-@Composable
-private fun LanguagePreview() {
-    Language(
-        languagesList = RepoFactory.defaultLanguages().toLanguageList()
-    )
-}
