@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
     kotlin("kapt")
 }
 
@@ -60,6 +61,12 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.paging.runtime.ktx)
     kapt(libs.hilt.compiler)
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    implementation(libs.androidx.room.paging)
+    ksp(libs.room.compiler)
+
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
