@@ -7,6 +7,14 @@ import androidx.room.PrimaryKey
 data class RepoSearchEntity(
     @PrimaryKey
     val username: String,
+
+    val ownerId: Long,
+
+    val avatarUrl: String?,
+
+    val profileUrl: String?,
+
     val lastSync: Long,
+
     val lastAccessed: Long
 )
