@@ -2,6 +2,7 @@ package com.karthik.pro.engr.github.api.playground.di
 
 import android.content.Context
 import androidx.room.Room
+import com.karthik.pro.engr.github.api.data.local.dao.RemoteKeysDao
 import com.karthik.pro.engr.github.api.data.local.dao.RepoDao
 import com.karthik.pro.engr.github.api.data.local.database.DatabaseConstants.DATABASE_NAME
 import com.karthik.pro.engr.github.api.data.local.database.GithubDatabase
@@ -35,4 +36,14 @@ object DatabaseModule {
     ): RepoDao {
         return database.repoDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideRemoteKeysDao(
+        database: GithubDatabase
+    ): RemoteKeysDao {
+        return database.remoteKeysDao()
+    }
+
+
 }
