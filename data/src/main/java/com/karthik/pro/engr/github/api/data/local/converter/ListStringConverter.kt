@@ -3,7 +3,7 @@ package com.karthik.pro.engr.github.api.data.local.converter
 import androidx.room.TypeConverter
 import kotlinx.serialization.json.Json
 
-class TopicConverter {
+class ListStringConverter {
 
     @TypeConverter
     fun fromTopics(topics: List<String>): String =
