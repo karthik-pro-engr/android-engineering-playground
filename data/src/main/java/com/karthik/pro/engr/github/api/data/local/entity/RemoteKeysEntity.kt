@@ -21,6 +21,5 @@ import androidx.room.PrimaryKey
 data class RemoteKeysEntity(
     @PrimaryKey
     val username: String,
-    val nextPage: Int?,
-    val lastUpdated: Long
+    val nextPage: Int?
 )

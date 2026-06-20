@@ -41,6 +41,7 @@ interface RepoDao {
         SELECT *
         FROM RepoEntity
         WHERE username = :username
+         ORDER BY id ASC
     """
     )
     fun pagingSource(username: String): PagingSource<Int, RepoEntity>
