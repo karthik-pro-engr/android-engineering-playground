@@ -25,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
+import com.karthik.pro.engr.github.api.playground.presentation.components.OfflineBanner
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
@@ -95,6 +97,15 @@ fun RepoListScreen(
         } else {
 
             val lazyPagingItems = reposSharedFlow.collectAsLazyPagingItems()
+
+            val loadState = lazyPagingItems.loadState
+
+            if (
+                lazyPagingItems.itemCount > 0 &&
+                loadState.refresh is LoadState.Error
+            ) {
+                OfflineBanner()
+            }
 
             PagingScreenHandler(lazyPagingItems = lazyPagingItems, emptyContent = {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

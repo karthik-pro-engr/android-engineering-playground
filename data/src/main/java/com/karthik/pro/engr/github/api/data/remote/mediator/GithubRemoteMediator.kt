@@ -17,8 +17,9 @@ import com.karthik.pro.engr.github.api.data.remote.constants.NetworkConstants
 import com.karthik.pro.engr.github.api.data.remote.constants.NetworkConstants.STARTING_PAGE_INDEX
 import com.karthik.pro.engr.github.api.data.remote.error.ApiException
 import com.karthik.pro.engr.github.api.data.remote.error.ErrorParser
-import  com.karthik.pro.engr.github.api.data.remote.mapper.RepoEntityMapper
+import com.karthik.pro.engr.github.api.data.remote.mapper.RepoEntityMapper
 import com.karthik.pro.engr.github.api.data.remote.pagination.GithubPaginationParser
+import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
 class GithubRemoteMediator(
@@ -33,112 +34,50 @@ class GithubRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, RepoEntity>
     ): MediatorResult {
-        return when (loadType) {
-            LoadType.REFRESH -> {
-                val page = STARTING_PAGE_INDEX
-
-                val response = service.listUserRepos(
-                    username,
-                    state.config.pageSize,
-                    page
-                )
-                if (response.isSuccessful) {
-                    val repoDtos = response.body().orEmpty()
-                    val result = response.body().orEmpty()
-                    val repoEntities = RepoEntityMapper.fromDtoList(
-                        result, username
-                    )
-
-                    val headerLink = response.headers()[NetworkConstants.HEADER_LINK]
-
-                    val pageLinks =
-                        GithubPaginationParser.parsePageNumbers(headerLink)
-
-
-
-                    database.withTransaction {
-
-                        val currentTime = System.currentTimeMillis()
-                        val owner = repoDtos.firstOrNull()?.owner
-
-                        repoDao.upsertSearchUser(
-                            RepoSearchEntity(
-                                username = username,
-                                lastSync = currentTime,
-                                lastAccessed = currentTime,
-                                ownerId = owner?.id ?: 0L,
-                                avatarUrl = owner?.avatar_url,
-                                profileUrl = owner?.html_url
-                            )
-                        )
-
-                        repoDao.deleteReposByUsername(username)
-
-                        remoteKeysDao.deleteRemoteKeys(username)
-
-
-                        repoDao.upsertRepos(repoEntities)
-
-                        remoteKeysDao.upsertNextKey(
-                            RemoteKeysEntity(
-                                username = username,
-                                nextPage = pageLinks.nextKey
-                            )
-                        )
-                    }
-
-                    MediatorResult.Success(
-                        endOfPaginationReached = pageLinks.nextKey == null
-                    )
-
-                } else {
-                    val errorDto = errorParser.parse(response)
-                    MediatorResult.Error(
-                        ApiException(
-                            message = errorDto.message,
-                            code = response.code(),
-                            headers = response.headers()
-                        )
-                    )
-
-                }
-
-            }
-
-            LoadType.PREPEND -> MediatorResult.Success(
-                endOfPaginationReached = true
-            )
-
-            LoadType.APPEND -> {
-                val nextPage = remoteKeysDao.getNextKey(username)
-
-
-                if (nextPage == null) {
-                    MediatorResult.Success(
-                        endOfPaginationReached = true
-                    )
-                } else {
+        return try {
+            when (loadType) {
+                LoadType.REFRESH -> {
+                    val page = STARTING_PAGE_INDEX
 
                     val response = service.listUserRepos(
-                        username = username,
-                        page = nextPage,
-                        perPage = state.config.pageSize
+                        username,
+                        state.config.pageSize,
+                        page
                     )
-
                     if (response.isSuccessful) {
                         val repoDtos = response.body().orEmpty()
-
+                        val result = response.body().orEmpty()
                         val repoEntities = RepoEntityMapper.fromDtoList(
-                            repoDtos,
-                            username
+                            result, username
                         )
 
-                        val pageLinks = GithubPaginationParser.parsePageNumbers(
-                            response.headers()[NetworkConstants.HEADER_LINK]
-                        )
+                        val headerLink = response.headers()[NetworkConstants.HEADER_LINK]
+
+                        val pageLinks =
+                            GithubPaginationParser.parsePageNumbers(headerLink)
+
 
 
                         database.withTransaction {
+
+                            val currentTime = System.currentTimeMillis()
+                            val owner = repoDtos.firstOrNull()?.owner
+
+                            repoDao.upsertSearchUser(
+                                RepoSearchEntity(
+                                    username = username,
+                                    lastSync = currentTime,
+                                    lastAccessed = currentTime,
+                                    ownerId = owner?.id ?: 0L,
+                                    avatarUrl = owner?.avatar_url,
+                                    profileUrl = owner?.html_url
+                                )
+                            )
+
+                            repoDao.deleteReposByUsername(username)
+
+                            remoteKeysDao.deleteRemoteKeys(username)
+
 
                             repoDao.upsertRepos(repoEntities)
 
@@ -153,10 +92,9 @@ class GithubRemoteMediator(
                         MediatorResult.Success(
                             endOfPaginationReached = pageLinks.nextKey == null
                         )
+
                     } else {
-
                         val errorDto = errorParser.parse(response)
-
                         MediatorResult.Error(
                             ApiException(
                                 message = errorDto.message,
@@ -169,7 +107,80 @@ class GithubRemoteMediator(
 
                 }
 
+                LoadType.PREPEND -> MediatorResult.Success(
+                    endOfPaginationReached = true
+                )
+
+                LoadType.APPEND -> {
+                    val nextPage = remoteKeysDao.getNextKey(username)
+
+                    Log.d("RemoteMediator", "load: Append is calling nextPage-> $nextPage")
+
+                    if (nextPage == null) {
+                        MediatorResult.Success(
+                            endOfPaginationReached = true
+                        )
+                    } else {
+
+                        val response = service.listUserRepos(
+                            username = username,
+                            page = nextPage,
+                            perPage = state.config.pageSize
+                        )
+
+                        if (response.isSuccessful) {
+                            val repoDtos = response.body().orEmpty()
+
+                            val repoEntities = RepoEntityMapper.fromDtoList(
+                                repoDtos,
+                                username
+                            )
+
+                            val pageLinks = GithubPaginationParser.parsePageNumbers(
+                                response.headers()[NetworkConstants.HEADER_LINK]
+                            )
+
+
+                            database.withTransaction {
+
+                                repoDao.upsertRepos(repoEntities)
+
+                                remoteKeysDao.upsertNextKey(
+                                    RemoteKeysEntity(
+                                        username = username,
+                                        nextPage = pageLinks.nextKey
+                                    )
+                                )
+                            }
+
+                            MediatorResult.Success(
+                                endOfPaginationReached = pageLinks.nextKey == null
+                            )
+                        } else {
+
+                            val errorDto = errorParser.parse(response)
+
+                            MediatorResult.Error(
+                                ApiException(
+                                    message = errorDto.message,
+                                    code = response.code(),
+                                    headers = response.headers()
+                                )
+                            )
+
+                        }
+
+                    }
+
+                }
             }
+        } catch (e: IOException) {
+            Log.d("RemoteMediator", "IOException-> ERROR -> ${e.message}")
+            MediatorResult.Error(e)
+
+        } catch (e: Exception) {
+            Log.d("RemoteMediator", "Exception-> ERROR -> ${e.message}")
+            MediatorResult.Error(e)
         }
 
     }
