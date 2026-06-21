@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -100,24 +101,34 @@ fun RepoListScreen(
 
             val loadState = lazyPagingItems.loadState
 
+            val isRefreshing =
+                loadState.refresh is LoadState.Loading &&
+                        lazyPagingItems.itemCount > 0
+
             if (
                 lazyPagingItems.itemCount > 0 &&
                 loadState.refresh is LoadState.Error
             ) {
                 OfflineBanner()
             }
-
-            PagingScreenHandler(lazyPagingItems = lazyPagingItems, emptyContent = {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.no_repos_found))
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    lazyPagingItems.refresh()
                 }
-            }) { repo ->
-                RepoListItem(
-                    repo = repo,
-                    onRepoClick = onRepoClick
-                )
-            }
+            ) {
+                PagingScreenHandler(lazyPagingItems = lazyPagingItems, emptyContent = {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.no_repos_found))
+                    }
+                }) { repo ->
+                    RepoListItem(
+                        repo = repo,
+                        onRepoClick = onRepoClick
+                    )
+                }
 
+            }
         }
 
     }

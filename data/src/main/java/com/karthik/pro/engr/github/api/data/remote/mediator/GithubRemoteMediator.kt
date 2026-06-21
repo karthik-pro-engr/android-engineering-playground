@@ -114,7 +114,6 @@ class GithubRemoteMediator(
                 LoadType.APPEND -> {
                     val nextPage = remoteKeysDao.getNextKey(username)
 
-                    Log.d("RemoteMediator", "load: Append is calling nextPage-> $nextPage")
 
                     if (nextPage == null) {
                         MediatorResult.Success(
@@ -175,11 +174,11 @@ class GithubRemoteMediator(
                 }
             }
         } catch (e: IOException) {
-            Log.d("RemoteMediator", "IOException-> ERROR -> ${e.message}")
+
             MediatorResult.Error(e)
 
         } catch (e: Exception) {
-            Log.d("RemoteMediator", "Exception-> ERROR -> ${e.message}")
+
             MediatorResult.Error(e)
         }
 
