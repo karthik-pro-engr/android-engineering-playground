@@ -3,6 +3,7 @@ package com.karthik.pro.engr.github.api.data.repository
 import androidx.paging.PagingData
 import com.karthik.pro.engr.github.api.core.testing.RepoFactory
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
+import com.karthik.pro.engr.github.api.data.remote.repository.RepositoryConstants
 import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Language
 import com.karthik.pro.engr.github.api.domain.model.Release
@@ -11,6 +12,7 @@ import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
 import com.karthik.pro.engr.github.api.domain.result.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class FakeRepository @Inject constructor() : GithubRepository {
@@ -37,4 +39,16 @@ class FakeRepository @Inject constructor() : GithubRepository {
         ownerName: String,
         repoName: String
     ): Result<List<Release>, DomainError> = Result.Success(RepoFactory.defaultReleases())
+
+    override suspend fun cleanupInactiveData() {
+        val cutoffTime =
+            System.currentTimeMillis() -
+                    TimeUnit.DAYS.toMillis(
+                        RepositoryConstants.CACHE_EXPIRY_DAYS
+                    )
+
+        /* TODO repoDao.deleteInactiveUsers(
+             cutoffTime
+         )*/
+    }
 }

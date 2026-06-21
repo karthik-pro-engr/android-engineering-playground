@@ -28,4 +28,7 @@ interface GithubRepository {
         ownerName: String,
         repoName: String
     ): Result<List<Release>, DomainError>
+
+    suspend fun cleanupInactiveData()
+
 }

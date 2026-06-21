@@ -81,4 +81,26 @@ interface RepoDao {
     suspend fun deleteReposByUsername(
         username: String
     )
+
+    @Query(
+        """
+    UPDATE RepoSearchEntity
+    SET lastAccessed = :lastAccessed
+    WHERE username = :username
+    """
+    )
+    suspend fun updateLastAccessed(
+        username: String,
+        lastAccessed: Long
+    )
+
+    @Query(
+        """
+    DELETE FROM RepoSearchEntity
+    WHERE lastAccessed < :cutoffTime
+    """
+    )
+    suspend fun deleteInactiveUser(
+        cutoffTime: Long
+    )
 }

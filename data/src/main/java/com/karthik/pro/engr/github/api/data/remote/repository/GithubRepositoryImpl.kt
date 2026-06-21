@@ -28,7 +28,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GithubRepositoryImpl @Inject constructor(
@@ -62,12 +64,19 @@ class GithubRepositoryImpl @Inject constructor(
             pagingSourceFactory = {
                 repoDao.pagingSource(username)
             }
-        ).flow.map { pagingData ->
-            pagingData.map(
-                RepoDomainMapper::fromEntity
-            )
+        ).flow
+            .onStart {
+                repoDao.updateLastAccessed(
+                    username = username,
+                    lastAccessed = System.currentTimeMillis()
+                )
+            }
+            .map { pagingData ->
+                pagingData.map(
+                    RepoDomainMapper::fromEntity
+                )
 
-        }
+            }
     }
 
     override suspend fun getRepoDetail(
@@ -126,5 +135,17 @@ class GithubRepositoryImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    override suspend fun cleanupInactiveData() {
+        val cutoffTime =
+            System.currentTimeMillis() -
+                    TimeUnit.DAYS.toMillis(
+                        RepositoryConstants.CACHE_EXPIRY_DAYS
+                    )
+
+        repoDao.deleteInactiveUser(
+            cutoffTime
+        )
     }
 }
