@@ -138,6 +138,7 @@ class GithubRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cleanupInactiveData() {
+
         val cutoffTime =
             System.currentTimeMillis() -
                     TimeUnit.DAYS.toMillis(

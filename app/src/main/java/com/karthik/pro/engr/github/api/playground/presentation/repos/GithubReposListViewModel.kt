@@ -47,7 +47,6 @@ class GithubReposListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            cleanupInactiveDataUseCase()
             _committedQuery.collect { query ->
                 savedStateHandle[KEY_USER_NAME_QUERY] = query
             }

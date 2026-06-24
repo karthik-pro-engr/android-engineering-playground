@@ -175,11 +175,16 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.paging.runtime.ktx)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.material)
