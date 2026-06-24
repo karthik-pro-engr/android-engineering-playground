@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.karthik.pro.engr.github.api.data.local.dao.RemoteKeysDao
 import com.karthik.pro.engr.github.api.data.local.dao.RepoDao
 import com.karthik.pro.engr.github.api.data.local.database.DatabaseConstants.DATABASE_NAME
+import com.karthik.pro.engr.github.api.data.local.database.DatabaseMigrations
 import com.karthik.pro.engr.github.api.data.local.database.GithubDatabase
 import dagger.Module
 import dagger.Provides
@@ -19,14 +20,18 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideGithubDatabase(
+    fun provideDatabase(
         @ApplicationContext context: Context
     ): GithubDatabase {
         return Room.databaseBuilder(
             context,
             GithubDatabase::class.java,
             DATABASE_NAME
-        ).build()
+        )
+            .addMigrations(
+                DatabaseMigrations.MIGRATION_1_2
+            )
+            .build()
     }
 
     @Provides
