@@ -79,63 +79,7 @@ class GithubRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun getRepoDetail(
-        ownerName: String,
-        repoName: String
-    ): Result<Repo, DomainError> {
-        return withContext(ioDispatcher) {
-            when (val result = safeApiCall {
-                service.repoDetail(
-                    ownerName,
-                    repoName
-                )
-            }) {
-                is Result.Success -> {
-                    Result.Success(fromDto(result.data))
-                }
 
-                is Result.Failure -> {
-                    Result.Failure(result.error.toDomainError())
-
-                }
-            }
-        }
-    }
-
-    override suspend fun getLanguage(
-        ownerName: String,
-        repoName: String
-    ): Result<Map<String, Long>, DomainError> {
-        return withContext(ioDispatcher) {
-            when (val result = safeApiCall { service.getRepoLanguages(ownerName, repoName) }) {
-                is Result.Success -> {
-                    Result.Success(result.data)
-                }
-
-                is Result.Failure -> {
-                    Result.Failure(result.error.toDomainError())
-                }
-            }
-
-        }
-    }
-
-    override suspend fun getReleases(
-        ownerName: String,
-        repoName: String
-    ): Result<List<Release>, DomainError> {
-        return withContext(ioDispatcher) {
-            when (val result = safeApiCall { service.getReleases(ownerName, repoName) }) {
-                is Result.Success -> {
-                    Result.Success(ReleaseMapper.fromReleaseDtoList(result.data))
-                }
-
-                is Result.Failure -> {
-                    Result.Failure(result.error.toDomainError())
-                }
-            }
-        }
-    }
 
     override suspend fun cleanupInactiveData() {
 

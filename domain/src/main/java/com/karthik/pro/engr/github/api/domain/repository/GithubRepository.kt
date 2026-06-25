@@ -14,20 +14,6 @@ interface GithubRepository {
         username: String
     ): Flow<PagingData<Repo>>
 
-    suspend fun getRepoDetail(
-        ownerName: String,
-        repoName: String
-    ): Result<Repo, DomainError>
-
-    suspend fun getLanguage(
-        ownerName: String,
-        repoName: String
-    ): Result<Map<String, Long>, DomainError>
-
-    suspend fun getReleases(
-        ownerName: String,
-        repoName: String
-    ): Result<List<Release>, DomainError>
 
     suspend fun cleanupInactiveData()
 

@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.karthik.pro.engr.github.api.data.local.entity.RepoEntity
 import com.karthik.pro.engr.github.api.data.local.entity.RepoSearchEntity
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -103,4 +104,32 @@ interface RepoDao {
     suspend fun deleteInactiveUser(
         cutoffTime: Long
     )
+
+    @Query(
+        """
+    SELECT *
+    FROM RepoEntity
+    WHERE username = :ownerName
+      AND name = :repoName
+    LIMIT 1
+    """
+    )
+    fun observeRepo(
+        ownerName: String,
+        repoName: String
+    ): Flow<RepoEntity?>
+
+    @Query(
+        """
+    SELECT *
+    FROM RepoEntity
+    WHERE username = :ownerName
+      AND name = :repoName
+    LIMIT 1
+    """
+    )
+    suspend fun getRepo(
+        ownerName: String,
+        repoName: String
+    ): RepoEntity?
 }

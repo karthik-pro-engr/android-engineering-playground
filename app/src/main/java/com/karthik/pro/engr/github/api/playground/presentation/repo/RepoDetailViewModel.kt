@@ -3,13 +3,14 @@ package com.karthik.pro.engr.github.api.playground.presentation.repo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
-import com.karthik.pro.engr.github.api.domain.error.DomainError
 import com.karthik.pro.engr.github.api.domain.model.Language
 import com.karthik.pro.engr.github.api.domain.result.Result
-import com.karthik.pro.engr.github.api.domain.usecase.GetLanguageUseCase
-import com.karthik.pro.engr.github.api.domain.usecase.GetReleasesUseCase
-import com.karthik.pro.engr.github.api.domain.usecase.GetRepoDetailUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveLanguagesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveReleasesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveRepoDetailUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshLanguagesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshReleasesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshRepoDetailUseCase
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.common.UiText
 import com.karthik.pro.engr.github.api.playground.presentation.common.formatter.RelativeTimeFormatter
@@ -25,7 +26,6 @@ import com.karthik.pro.engr.github.api.playground.presentation.repo.model.RepoDe
 import com.karthik.pro.engr.github.api.playground.presentation.uistate.ListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,9 +38,13 @@ import javax.inject.Inject
 @HiltViewModel
 class RepoDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getRepoDetailUseCase: GetRepoDetailUseCase,
-    private val getLanguageUseCase: GetLanguageUseCase,
-    private val getReleasesUseCase: GetReleasesUseCase
+
+    private val observeRepoDetailUseCase: ObserveRepoDetailUseCase,
+    private val refreshRepoDetailUseCase: RefreshRepoDetailUseCase,
+    private val observeLanguagesUseCase: ObserveLanguagesUseCase,
+    private val refreshLanguagesUseCase: RefreshLanguagesUseCase,
+    private val observeReleasesUseCase: ObserveReleasesUseCase,
+    private val refreshReleasesUseCase: RefreshReleasesUseCase
 ) : ViewModel() {
 
     private val owner: String = savedStateHandle[REPO_OWNER_ARG] ?: ""
@@ -57,9 +61,14 @@ class RepoDetailViewModel @Inject constructor(
         MutableStateFlow(ListUiState.Loading)
     val releasesUiState = _releasesUiState.asStateFlow()
 
-    private var languageJob: Job? = null
-    private var releaseJob: Job? = null
+    private var languageObserveJob: Job? = null
+    private var releaseObserveJob: Job? = null
 
+    private val _showOfflineBanner =
+        MutableStateFlow(false)
+
+    val showOfflineBanner =
+        _showOfflineBanner.asStateFlow()
 
     private val _items: StateFlow<List<RepoDetailItemUi>> =
         combine(
@@ -157,80 +166,210 @@ class RepoDetailViewModel @Inject constructor(
 
 
     init {
-        loadRepoDetail(owner, repoName)
+        observeRepoDetail()
+        refreshRepoDetail()
     }
 
 
-    fun retryRepoDetail() = loadRepoDetail(owner, repoName)
-    fun retryLanguages() = loadLanguages(owner, repoName)
-    fun retryReleases() = loadReleases(owner, repoName)
+    fun retryRepoDetail() {
 
-    private fun loadRepoDetail(owner: String, repoName: String) {
-        // Cancel dependent jobs
-        languageJob?.cancel()
-        releaseJob?.cancel()
+        refreshRepoDetail()
 
+        refreshLanguages()
+
+        refreshReleases()
+    }
+
+    fun retryLanguages() {
+        refreshLanguages()
+    }
+
+    fun retryReleases() {
+        refreshReleases()
+    }
+
+    private fun observeRepoDetail() {
         _repoUiState.value = RepoDetailUiState.Loading
         _languageUiState.value = ListUiState.Loading
         _releasesUiState.value = ListUiState.Loading
 
         viewModelScope.launch {
 
-            when (val result = getRepoDetailUseCase(owner, repoName)) {
-                is Result.Failure -> {
-                    _repoUiState.value =
-                        RepoDetailUiState.Error(ApiErrorMapper.parseError(result.error))
+            observeRepoDetailUseCase(
+                owner,
+                repoName
+            ).collect { repo ->
+
+                if (repo == null) return@collect
+
+                _repoUiState.value =
+                    RepoDetailUiState.Success(
+                        repo.toRepoDetailUi()
+                    )
+
+                if (languageObserveJob?.isActive != true) {
+
+                    observeLanguages()
+
+                    refreshLanguages()
                 }
 
-                is Result.Success -> {
-                    _repoUiState.value = RepoDetailUiState.Success(result.data.toRepoDetailUi())
-                    coroutineScope {
-                        launch { loadLanguages(owner, repoName) }
-                        launch { loadReleases(owner, repoName) }
-                    }
+                if (releaseObserveJob?.isActive != true) {
+
+                    observeReleases()
+
+                    refreshReleases()
                 }
+
             }
-
-        }
-
-    }
-
-    private fun loadLanguages(owner: String, repoName: String) {
-        languageJob?.cancel()
-        languageJob = viewModelScope.launch {
-
-            when (val languagesResult = getLanguageUseCase(owner, repoName)) {
-                is Result.Failure -> _languageUiState.value =
-                    ListUiState.Error(languagesResult.error)
-
-                is Result.Success -> {
-                    _languageUiState.value =
-                        ListUiState.Success(languagesResult.data.toLanguageList())
-                }
-            }
-
         }
     }
 
-    private fun loadReleases(ownerName: String, repoName: String) {
-        releaseJob?.cancel()
-        releaseJob = viewModelScope.launch {
+    private fun refreshRepoDetail() {
 
-            when (val releasesResult = getReleasesUseCase(ownerName, repoName)) {
+        viewModelScope.launch {
+
+            when (
+                val result = refreshRepoDetailUseCase(
+                    owner,
+                    repoName
+                )
+            ) {
+
                 is Result.Success -> {
-                    val formatter = RelativeTimeFormatter()
-                    val releaseUis = releasesResult.data.map {
-                        it.toReleaseUi(formatter)
-                    }
-
-                    _releasesUiState.value = ListUiState.Success(releaseUis)
+                    _showOfflineBanner.value = false
                 }
 
                 is Result.Failure -> {
-                    _releasesUiState.value = ListUiState.Error(DomainError.Unknown)
+
+                    if (_repoUiState.value is RepoDetailUiState.Success) {
+
+                        _showOfflineBanner.value = true
+
+                    } else {
+
+                        _repoUiState.value =
+                            RepoDetailUiState.Error(
+                                ApiErrorMapper.parseError(
+                                    result.error
+                                )
+                            )
+                    }
                 }
             }
+        }
+    }
 
+    private fun observeLanguages() {
+
+        languageObserveJob = viewModelScope.launch {
+
+            observeLanguagesUseCase(
+                owner,
+                repoName
+            ).collect { languages ->
+
+                if (
+                    languages.isEmpty() &&
+                    _languageUiState.value is ListUiState.Loading
+                ) {
+                    return@collect
+                }
+
+                _languageUiState.value =
+                    ListUiState.Success(languages)
+            }
+        }
+    }
+
+    private fun refreshLanguages() {
+
+        viewModelScope.launch {
+
+            when (
+                val result = refreshLanguagesUseCase(
+                    owner,
+                    repoName
+                )
+            ) {
+
+                is Result.Success -> Unit
+
+                is Result.Failure -> {
+
+                    if (
+                        _languageUiState.value
+                                !is ListUiState.Success
+                    ) {
+
+                        _languageUiState.value =
+                            ListUiState.Error(
+                                result.error
+                            )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeReleases() {
+
+        releaseObserveJob = viewModelScope.launch {
+
+            observeReleasesUseCase(
+                owner,
+                repoName
+            ).collect { releases ->
+
+                if (
+                    releases.isEmpty() &&
+                    _languageUiState.value is ListUiState.Loading
+                ) {
+                    return@collect
+                }
+
+                val formatter =
+                    RelativeTimeFormatter()
+
+                _releasesUiState.value =
+                    ListUiState.Success(
+                        releases.map {
+                            it.toReleaseUi(
+                                formatter
+                            )
+                        }
+                    )
+            }
+        }
+    }
+
+    private fun refreshReleases() {
+
+        viewModelScope.launch {
+
+            when (
+                val result = refreshReleasesUseCase(
+                    owner,
+                    repoName
+                )
+            ) {
+
+                is Result.Success -> Unit
+
+                is Result.Failure -> {
+
+                    if (
+                        _releasesUiState.value
+                                !is ListUiState.Success
+                    ) {
+
+                        _releasesUiState.value =
+                            ListUiState.Error(
+                                result.error
+                            )
+                    }
+                }
+            }
         }
     }
 

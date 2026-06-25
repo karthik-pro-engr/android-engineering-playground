@@ -24,21 +24,7 @@ class FakeRepository @Inject constructor() : GithubRepository {
         )
     )
 
-    override suspend fun getRepoDetail(
-        ownerName: String,
-        repoName: String
-    ): Result<Repo, DomainError> = Result.Success(RepoFactory.defaultRepo())
 
-
-    override suspend fun getLanguage(
-        ownerName: String,
-        repoName: String
-    ): Result<Map<String, Long>, DomainError> = Result.Success(RepoFactory.defaultLanguages())
-
-    override suspend fun getReleases(
-        ownerName: String,
-        repoName: String
-    ): Result<List<Release>, DomainError> = Result.Success(RepoFactory.defaultReleases())
 
     override suspend fun cleanupInactiveData() {
         val cutoffTime =

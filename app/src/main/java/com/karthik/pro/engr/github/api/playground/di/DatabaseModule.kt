@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.karthik.pro.engr.github.api.data.local.dao.RemoteKeysDao
 import com.karthik.pro.engr.github.api.data.local.dao.RepoDao
+import com.karthik.pro.engr.github.api.data.local.dao.RepoLanguageDao
+import com.karthik.pro.engr.github.api.data.local.dao.RepoReleaseDao
 import com.karthik.pro.engr.github.api.data.local.database.DatabaseConstants.DATABASE_NAME
 import com.karthik.pro.engr.github.api.data.local.database.DatabaseMigrations
 import com.karthik.pro.engr.github.api.data.local.database.GithubDatabase
@@ -40,6 +42,22 @@ object DatabaseModule {
         database: GithubDatabase
     ): RepoDao {
         return database.repoDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRepoLanguagesDao(
+        database: GithubDatabase
+    ): RepoLanguageDao {
+        return database.repoLanguageDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRepoReleaseDao(
+        database: GithubDatabase
+    ): RepoReleaseDao {
+        return database.repoReleaseDao()
     }
 
     @Provides
