@@ -25,8 +25,11 @@
     <string name="error_generic"> Something went wrong. Please try again.</string>
     <string name="error_no_internet"> No internet connection. Please check your network and try again.</string>
     <string name="error_user_not_found">User not found</string>
-    <string name="showing_cached_data">
+    <string name="showing_cached_data_for_list">
     Showing cached data. Unable to refresh latest repositories.
+    </string>
+    <string name="showing_cached_data_for_repo_detail">
+    Showing cached data. Unable to refresh latest repository information.
     </string>
 
 

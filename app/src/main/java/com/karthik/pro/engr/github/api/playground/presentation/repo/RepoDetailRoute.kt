@@ -13,10 +13,11 @@ fun RepoDetailRoute(
     onBack: () -> Unit
 ) {
     val items by viewModel.uiItems.collectAsState()
-
+    val showStaleDataBanner by viewModel.showStaleDataBanner.collectAsState()
     RepoDetailScreen(
         modifier = modifier,
         items = items,
+        showStaleDataBanner = showStaleDataBanner,
         repoName = viewModel.repoName,
         onBack = onBack,
         onRepoRetry = viewModel::retryRepoDetail,

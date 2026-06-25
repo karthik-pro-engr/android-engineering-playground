@@ -1,5 +1,6 @@
 package com.karthik.pro.engr.github.api.playground.presentation.repo
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -64,11 +65,17 @@ class RepoDetailViewModel @Inject constructor(
     private var languageObserveJob: Job? = null
     private var releaseObserveJob: Job? = null
 
-    private val _showOfflineBanner =
+    private val _showStaleDataBanner =
         MutableStateFlow(false)
 
-    val showOfflineBanner =
-        _showOfflineBanner.asStateFlow()
+    val showStaleDataBanner =
+        _showStaleDataBanner.asStateFlow()
+
+    private var repoRefreshFailed = false
+
+    private var languageRefreshFailed = false
+
+    private var releaseRefreshFailed = false
 
     private val _items: StateFlow<List<RepoDetailItemUi>> =
         combine(
@@ -199,7 +206,7 @@ class RepoDetailViewModel @Inject constructor(
                 owner,
                 repoName
             ).collect { repo ->
-
+                Log.d("REpoDEtailViemodel", "observeRepoDetail: $repo")
                 if (repo == null) return@collect
 
                 _repoUiState.value =
@@ -237,16 +244,18 @@ class RepoDetailViewModel @Inject constructor(
             ) {
 
                 is Result.Success -> {
-                    _showOfflineBanner.value = false
+                    Log.d("REpoDEtailViemodel", "refreshRepoDetail:Result.Success ")
+                    repoRefreshFailed = false
+
+                    updateOfflineBanner()
                 }
 
                 is Result.Failure -> {
 
-                    if (_repoUiState.value is RepoDetailUiState.Success) {
 
-                        _showOfflineBanner.value = true
+                    if (_repoUiState.value !is RepoDetailUiState.Success) {
+                        Log.d("REpoDEtailViemodel", "refreshRepoDetail:Result.Failure if block ")
 
-                    } else {
 
                         _repoUiState.value =
                             RepoDetailUiState.Error(
@@ -254,6 +263,12 @@ class RepoDetailViewModel @Inject constructor(
                                     result.error
                                 )
                             )
+                    }else {
+                        Log.d("REpoDEtailViemodel", "refreshRepoDetail:Result.Failure else block ")
+
+                        repoRefreshFailed = true
+
+                        updateOfflineBanner()
                     }
                 }
             }
@@ -268,7 +283,7 @@ class RepoDetailViewModel @Inject constructor(
                 owner,
                 repoName
             ).collect { languages ->
-
+                Log.d("REpoDEtailViemodel", "observeLanguages: $languages ")
                 if (
                     languages.isEmpty() &&
                     _languageUiState.value is ListUiState.Loading
@@ -293,7 +308,13 @@ class RepoDetailViewModel @Inject constructor(
                 )
             ) {
 
-                is Result.Success -> Unit
+                is Result.Success -> {
+                    Log.d("REpoDEtailViemodel", "refreshLanguages:Result.Success ")
+
+                    languageRefreshFailed = false
+
+                    updateOfflineBanner()
+                }
 
                 is Result.Failure -> {
 
@@ -301,11 +322,19 @@ class RepoDetailViewModel @Inject constructor(
                         _languageUiState.value
                                 !is ListUiState.Success
                     ) {
+                        Log.d("REpoDEtailViemodel", "refreshLanguages:Result.Failure if")
+
 
                         _languageUiState.value =
                             ListUiState.Error(
                                 result.error
                             )
+                    }else {
+                        Log.d("REpoDEtailViemodel", "refreshLanguages:Result.Failure else")
+
+                        languageRefreshFailed = true
+
+                        updateOfflineBanner()
                     }
                 }
             }
@@ -320,6 +349,8 @@ class RepoDetailViewModel @Inject constructor(
                 owner,
                 repoName
             ).collect { releases ->
+
+                Log.d("REpoDEtailViemodel", "observeReleases: $releases")
 
                 if (
                     releases.isEmpty() &&
@@ -354,7 +385,12 @@ class RepoDetailViewModel @Inject constructor(
                 )
             ) {
 
-                is Result.Success -> Unit
+                is Result.Success -> {
+                    Log.d("REpoDEtailViemodel", "refreshReleases:Result.Success")
+                    releaseRefreshFailed = false
+
+                    updateOfflineBanner()
+                }
 
                 is Result.Failure -> {
 
@@ -362,16 +398,31 @@ class RepoDetailViewModel @Inject constructor(
                         _releasesUiState.value
                                 !is ListUiState.Success
                     ) {
+                        Log.d("REpoDEtailViemodel", "refreshReleases:Result.Failure if")
 
                         _releasesUiState.value =
                             ListUiState.Error(
                                 result.error
                             )
+                    }else {
+                        Log.d("REpoDEtailViemodel", "refreshReleases:Result.Failure else")
+
+                        releaseRefreshFailed = true
+
+                        updateOfflineBanner()
                     }
                 }
             }
         }
     }
 
+
+    private fun updateOfflineBanner() {
+
+        _showStaleDataBanner.value =
+            repoRefreshFailed ||
+                    languageRefreshFailed ||
+                    releaseRefreshFailed
+    }
 
 }

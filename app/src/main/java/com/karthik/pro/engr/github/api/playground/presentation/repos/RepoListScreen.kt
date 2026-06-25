@@ -109,7 +109,7 @@ fun RepoListScreen(
                 lazyPagingItems.itemCount > 0 &&
                 loadState.refresh is LoadState.Error
             ) {
-                OfflineBanner()
+                OfflineBanner(resId = R.string.showing_cached_data_for_list)
             }
             PullToRefreshBox(
                 isRefreshing = isRefreshing,

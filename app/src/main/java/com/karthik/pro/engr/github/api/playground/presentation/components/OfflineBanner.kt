@@ -1,5 +1,6 @@
 package com.karthik.pro.engr.github.api.playground.presentation.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +14,8 @@ import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dime
 
 @Composable
 fun OfflineBanner(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @StringRes resId: Int
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -22,7 +24,7 @@ fun OfflineBanner(
         Text(
             modifier = Modifier.padding(Dimens.medium),
             text = stringResource(
-                R.string.showing_cached_data
+                resId
             ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onErrorContainer
