@@ -1,374 +1,229 @@
-# GitHub API Playground
+# Android Engineering Playground 🚀
 
-A production-oriented Android API integration playground built with modern Android development practices.
+[![Android CI](https://github.com/karthik-pro-engr/android-engineering-playground/actions/workflows/android-ci.yml/badge.svg)](https://github.com/karthik-pro-engr/android-engineering-playground/actions/workflows/android-ci.yml)
+[![Firebase Distribution](https://github.com/karthik-pro-engr/android-engineering-playground/actions/workflows/firebase-distribution.yml/badge.svg)](https://github.com/karthik-pro-engr/android-engineering-playground/actions/workflows/firebase-distribution.yml)
 
-This project demonstrates scalable Android engineering concepts including multi-module architecture, Clean Architecture, Jetpack Compose UI, dependency injection, pagination, resilient networking, Firebase release workflows, and testable state management.
+![Android](https://img.shields.io/badge/Android-Native-green)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.x-blue)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-orange)
+![Room](https://img.shields.io/badge/Room-SSOT-success)
+![Paging3](https://img.shields.io/badge/Paging3-RemoteMediator-blue)
+![WorkManager](https://img.shields.io/badge/WorkManager-Background%20Sync-purple)
+![License](https://img.shields.io/github/license/karthik-pro-engr/android-engineering-playground)
 
-The application integrates with the GitHub API and is designed as a real-world Android engineering portfolio project.
-
----
-
-# Project Snapshot
-
-| Area | Status |
-|---|---|
-| Platform | Android |
-| UI | Jetpack Compose |
-| Architecture | MVVM + Clean Architecture |
-| Modules | app, domain, data, core, core-testing |
-| API Integration | GitHub REST API for repos, details, languages, and releases |
-| Pagination | Paging 3 |
-| Dependency Injection | Hilt |
-| CI/CD | GitHub Actions + Firebase App Distribution |
-| Current Build | Debug build verified |
-| Current Test Status | Focused unit coverage added for paging, repo detail, mappers, and formatters |
+A production-oriented Android portfolio project showcasing
+Offline-First Architecture, Clean Architecture, Paging 3,
+WorkManager, Jetpack Compose, CI/CD, and modern Android
+engineering practices.
 
 ---
 
-# Tech Stack
+# ✨ Key Highlights
 
-## Language
+✅ Offline-First Architecture
 
-* Kotlin
+✅ Room as Single Source of Truth (SSOT)
 
-## UI
+✅ Paging 3 + RemoteMediator
 
-* Jetpack Compose
-* Material 3
-* Navigation Compose
+✅ WorkManager Background Synchronization
 
-## Architecture
+✅ Clean Architecture + MVVM
 
-* MVVM
-* Clean Architecture
-* Repository Pattern
-* Multi-module Architecture
+✅ Hilt Dependency Injection
 
-## Asynchronous Programming
+✅ Pull-To-Refresh Support
 
-* Kotlin Coroutines
-* Kotlin Flow
-* StateFlow
+✅ Firebase Crashlytics
 
-## Dependency Injection
+✅ Firebase App Distribution
 
-* Hilt
+✅ Automated Testing
 
-## Networking
+✅ GitHub Actions CI
 
-* Retrofit
-* OkHttp
-* Gson Converter
-* GitHub REST API
+---
 
-## Pagination
+# 📱 Screenshots
 
-* Paging 3
-* Custom GitHub Link Header parsing
+| Home | Repository List | Repository Details |
+|------|----------------|-------------------|
+| ![Home](docs/images/home-screen.png) | ![Repository List](docs/images/repository-list.png) | ![Repository Details](docs/images/repository-details.png) |
 
-## Firebase
+| Offline List | Offline Details | Empty State |
+|-------------|-----------------|-------------|
+| ![Offline List](docs/images/offline-repository-list.png) | ![Offline Details](docs/images/offline-repository-details.png) | ![Offline Empty State](docs/images/offline-empty-state.png) |
 
-* Firebase Crashlytics
-* Firebase Analytics
+---
+
+# 🏗️ Architecture
+
+
+Detailed architecture documentation:
+
+[Architecture Documentation](docs/architecture.md)
+
+---
+
+# ⚙️ Architecture Overview
+
+The project follows Clean Architecture principles with clear separation between Presentation, Domain, and Data layers.
+
+The application adopts an Offline-First approach where Room acts as the Single Source of Truth (SSOT).
+
+Data Flow:
+
+GitHub API
+
+→ Retrofit
+
+→ RemoteMediator
+
+→ Room Database (SSOT)
+
+→ PagingSource
+
+→ Repository
+
+→ Use Cases
+
+→ ViewModel
+
+→ Jetpack Compose UI
+
+The UI never reads directly from the network. All data consumed by the UI originates from Room.
+
+---
+
+# 🔧 Engineering Challenges & Solutions
+
+This project evolved from a simple network-based implementation into a production-oriented Offline-First architecture.
+
+Key engineering decisions include:
+
+* Migrating from direct API pagination to RemoteMediator
+* Implementing Room as SSOT
+* Introducing resilient offline support
+* Background synchronization with WorkManager
+* Centralized error handling
+* Scalable repository architecture
+
+Detailed write-up:
+
+[Engineering Challenges & Solutions](docs/engineering-challenges.md)
+
+---
+
+# 🔄 CI/CD
+
+This project uses GitHub Actions to automate quality checks and release delivery.
+
+### Continuous Integration
+
+Every Pull Request and push triggers:
+
+* Build Validation (`assembleDebug`)
+* Unit Tests
+* Android Lint
+* Artifact Generation
+
+### Continuous Delivery
+
+Version tags automatically trigger:
+
+* Signed Beta APK Generation
 * Firebase App Distribution
+* Release Artifact Upload
 
-## Testing
+### Pipeline Highlights
+
+* Automated Build Verification
+* Automated Testing
+* Static Code Analysis
+* Secure Signing with GitHub Secrets
+* Firebase App Distribution
+* Artifact Archiving
+
+Detailed documentation:
+
+[CI/CD Documentation](docs/ci-cd.md)
+
+---
+
+# 🧪 Testing
+
+The project includes automated testing for critical application layers.
+
+### Covered Areas
+
+* ViewModels
+* Use Cases
+* Repository Layer
+* Paging Components
+* Data Mapping Logic
+* Error Handling Logic
+
+### Testing Stack
 
 * JUnit
 * MockK
+* Coroutines Test
 * Turbine
-* Truth
 * MockWebServer
-* Compose UI Testing
 
-## Tooling
-
-* Gradle Kotlin DSL
-* Version Catalog
-* GitHub Actions
-* Husky
-* Commitlint
+The goal is to ensure business logic remains reliable, maintainable, and independently testable.
 
 ---
 
-# Features
+# 🛠️ Tech Stack
 
-* GitHub repository listing by username
-* Paginated repository loading
-* Modern Compose UI
-* Loading, empty, and error states
-* Retry-ready paging UI structure
-* API-backed repository detail screen
-* Repository stats, topics, language breakdown, and release list
-* Readable count, percentage, and relative time formatting
-* Section-level retry handling for detail, languages, and releases
-* Deep link support for repository detail route
-* Multi-module project structure
-* Firebase beta distribution workflow
-* Release signing configuration
-* CI workflow for build, test, and lint
-* Shared testing utilities
+| Category             | Technology                           |
+| -------------------- | ------------------------------------ |
+| Language             | Kotlin                               |
+| UI                   | Jetpack Compose, Material 3          |
+| Architecture         | Clean Architecture, MVVM             |
+| Dependency Injection | Hilt                                 |
+| Networking           | Retrofit, OkHttp                     |
+| Database             | Room                                 |
+| Pagination           | Paging 3, RemoteMediator             |
+| Background Sync      | WorkManager                          |
+| Concurrency          | Coroutines, Flow                     |
+| Testing              | JUnit, MockK, Turbine, MockWebServer |
+| Monitoring           | Firebase Crashlytics                 |
+| Distribution         | Firebase App Distribution            |
+| CI/CD                | GitHub Actions                       |
+| Build System         | Gradle Kotlin DSL                    |
 
----
-
-# Current Implementation Status
-
-| Capability | Status |
-|---|---|
-| Repository list screen | Implemented |
-| Username search | Implemented |
-| Paging support | Implemented |
-| GitHub repo list API path | Implemented and tested |
-| Repository detail UI | Implemented |
-| Repository detail API | Implemented |
-| Languages API | Implemented |
-| Releases API | Implemented |
-| Navigation and repository detail deep links | Implemented |
-| Shared UI formatting | Implemented |
-| Room local cache | Planned |
-| WorkManager sync | Future improvement |
 
 ---
 
-# Architecture
+# 👨‍💻 Author
 
-The project follows Clean Architecture with clear separation of concerns.
+## Karthik
 
-```text
-UI Layer
-Jetpack Compose Screens
-        |
-        v
-ViewModel Layer
-StateFlow + PagingData + sectioned UI state
-        |
-        v
-Domain Layer
-UseCases + Repository Contracts
-        |
-        v
-Data Layer
-Repository Implementation
-        |
-        v
-Remote Layer
-Retrofit + OkHttp + GitHub API
-```
+Senior Android Engineer | 10+ Years Experience
 
-Current app runtime is wired to the real `GithubRepositoryImpl`. Debug and test fakes remain available for previews, deterministic test data, and isolated ViewModel coverage.
+Passionate about building scalable, resilient, and production-ready Android applications using modern Android development practices.
+
+### Connect
+
+* GitHub: https://github.com/karthik-pro-engr
+* LinkedIn: https://www.linkedin.com/in/karthikkumar-thangavel-a2a5b5229/
 
 ---
 
-# Module Structure
+# 🚀 Future Improvements
 
-## app
-
-Application entry point, Compose UI, navigation, ViewModels, Hilt bindings, formatting helpers, and build-variant behavior.
-
-## domain
-
-Business models, repository contracts, repo list/detail use cases, release and language use cases, pagination constants, relative time models, and domain error types.
-
-## data
-
-Retrofit service, repository implementation, DTO mapping, repo detail/language/release endpoints, network error parsing, and PagingSource implementation.
-
-## core
-
-Shared Android and dependency injection utilities.
-
-## core-testing
-
-Shared test factories, fake repos, fake language/release data, and coroutine test helpers.
+* GraphQL Integration
+* Advanced Synchronization Policies
+* Multi-Account Support
+* Feature Module Expansion
+* Enhanced CI/CD Pipeline
 
 ---
 
-# API Flow
+# 📄 License
 
-Repository list flow:
+Licensed under the Apache License 2.0.
 
-```text
-User enters GitHub username
-        |
-        v
-RepoListScreen
-        |
-        v
-GithubReposListViewModel
-        |
-        v
-GetUserReposUseCase
-        |
-        v
-GithubRepository
-        |
-        v
-GithubPagingSource
-        |
-        v
-GithubService
-        |
-        v
-GitHub REST API
-```
-
-Repository detail flow:
-
-```text
-User selects a repository or opens a deep link
-        |
-        v
-AppNavHost
-        |
-        v
-RepoDetailRoute
-        |
-        v
-RepoDetailViewModel
-        |
-        v
-GetRepoDetailUseCase + GetLanguageUseCase + GetReleasesUseCase
-        |
-        v
-GithubRepository
-        |
-        v
-GithubService
-        |
-        v
-GitHub REST API
-```
-
----
-
-# Engineering Practices
-
-* Modular Android architecture
-* Clean separation between UI, domain, and data layers
-* Dependency injection with Hilt
-* Reactive UI state using Flow and StateFlow
-* Paging 3 based list loading
-* GitHub pagination using Link header parsing
-* Parallel loading for repository detail dependencies after the base repo succeeds
-* Structured error handling for API and IO failures
-* UI state modeled separately for repo detail, languages, and releases
-* Preview and test data factories for repeatable UI and ViewModel scenarios
-* Firebase App Distribution pipeline
-* Release signing automation
-* Conventional commit validation
-* Unit and UI test coverage for important flows
-
----
-
-# Key Architecture Decisions
-
-| Decision | Reason |
-|---|---|
-| Multi-module setup | Keeps UI, domain, data, and testing responsibilities separate |
-| Repository contract in domain | Makes the app easier to test and swap implementations |
-| Paging 3 | Handles large repo lists, load states, retry, and pagination lifecycle |
-| Real repository binding in app runtime | Keeps production behavior aligned with the GitHub API while retaining fakes for tests and previews |
-| Sectioned repository detail state | Allows repo metadata, languages, and releases to load, fail, and retry independently |
-| Relative time domain model | Keeps formatting testable and localization-friendly |
-| Firebase beta workflow | Supports production-style release and feedback loops |
-
----
-
-# Build And Run
-
-```bash
-git clone https://github.com/karthik-pro-engr/github-api-playground.git
-cd github-api-playground
-npm install
-./gradlew :app:assembleDebug
-```
-
-Useful commands:
-
-```bash
-./gradlew test
-./gradlew lint
-./gradlew :app:assembleBeta
-./gradlew :app:appDistributionUploadBeta
-```
-
----
-
-# Configuration
-
-| Variable | Purpose |
-|---|---|
-| KEYSTORE_BASE64 | Base64 encoded release keystore |
-| RELEASE_STORE_PASSWORD | Release keystore password |
-| RELEASE_KEY_ALIAS | Release signing key alias |
-| RELEASE_KEY_PASSWORD | Release signing key password |
-| FIREBASE_SERVICE_ACCOUNT_JSON | Firebase service account JSON |
-| GOOGLE_SERVICES_JSON | Firebase Android config for CI |
-
----
-
-# Testing Status
-
-The project includes tests for:
-
-* PagingSource success and failure scenarios
-* GitHub pagination behavior
-* API error mapping
-* Repository paging emission
-* ViewModel query handling
-* Compose paging UI states
-* Repository detail ViewModel loading, success, error, and retry states
-* Formatter and mapper behavior
-* Readable number formatting and relative time boundaries
-
-Run locally with:
-
-```bash
-./gradlew test
-```
-
----
-
-# Screenshots
-
-> Screenshots will be added soon.
-
-Recommended screenshots:
-
-* Repository search screen
-* Repository list with pagination
-* Loading state
-* Error state
-* Repository detail screen
-* Repository language breakdown
-* Repository releases list
-* Firebase beta feedback state
-
----
-
-# Roadmap
-
-* Add Room database cache
-* Add WorkManager based background sync
-* Add CI coverage reports
-* Add screenshots and demo APK link
-* Add richer release asset interactions from the detail screen
-
----
-
-# Author
-
-**Karthikkumar T**  
-Android Engineer
-
-Focused on modern Android development, scalable architecture, API integration, and production-grade mobile engineering.
-
-* GitHub: [https://github.com/karthik-pro-engr](https://github.com/karthik-pro-engr)
-* LinkedIn: [https://www.linkedin.com/in/karthikkumar-thangavel-a2a5b5229/](https://www.linkedin.com/in/karthikkumar-thangavel-a2a5b5229/)
-* Portfolio: [https://github.com/karthik-pro-engr/github-api-playground#readme](https://github.com/karthik-pro-engr/github-api-playground#readme)
-
----
-
-# License
-
-Licensed under the [Apache-2.0 License](./LICENSE).
+See the [LICENSE](LICENSE) file for details.
