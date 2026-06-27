@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
     kotlin("kapt")
 }
 
@@ -36,6 +37,11 @@ android {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
+    }
+    room {
+        schemaDirectory(
+            "$projectDir/schemas"
+        )
     }
 }
 
