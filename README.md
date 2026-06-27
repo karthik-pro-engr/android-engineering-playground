@@ -96,7 +96,6 @@ Graceful error handling when no cached data exists and network is unavailable.
 
 # 🏗️ Architecture
 
-![Architecture Diagram](docs/images/architecture-diagram.png)
 
 Detailed architecture documentation:
 
