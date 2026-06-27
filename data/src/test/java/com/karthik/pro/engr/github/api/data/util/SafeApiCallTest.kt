@@ -20,14 +20,11 @@ class SafeApiCallTest {
             GitHubRepoDto(
                 id = 1,
                 name = "algo-compose",
-                full_name = "karthik-pro-engr/algo-compose",
                 description = "A comprehensive Android practice lab for mastering DSA, Jetpack Compose, and Android architecture concepts through real-world scenario-based projects",
-                html_url = "https://github.com/karthik-pro-engr/algo-compose",
                 language = "Kotlin",
                 stargazers_count = 0,
                 forks_count = 0,
                 topics = emptyList(),
-                languages_url = "https://api.github.com/repos/karthik-pro-engr/algo-compose/languages",
                 owner = GitHubOwnerDto(
                     login = "karthik-pro-engr",
                     id = 101930095,

@@ -11,6 +11,7 @@ import com.karthik.pro.engr.github.api.playground.presentation.repo.RepoDetailSc
 private fun RepoDetailScreenPreview() {
     RepoDetailScreen(
         items = fakeItems(),
+        showStaleDataBanner = true,
         repoName = "Github-api-playground",
         onBack = {},
         onRepoRetry = {},

@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.components.ErrorUi
 import com.karthik.pro.engr.github.api.playground.presentation.components.FullScreenLoader
+import com.karthik.pro.engr.github.api.playground.presentation.components.OfflineBanner
 import com.karthik.pro.engr.github.api.playground.presentation.components.SectionHeader
 import com.karthik.pro.engr.github.api.playground.presentation.designsystem.Dimens
 import com.karthik.pro.engr.github.api.playground.presentation.repo.components.NoData
@@ -38,6 +39,7 @@ import com.karthik.pro.engr.github.api.playground.presentation.repo.model.key
 fun RepoDetailScreen(
     modifier: Modifier = Modifier,
     items: List<RepoDetailItemUi>,
+    showStaleDataBanner: Boolean,
     repoName: String,
     onBack: () -> Unit,
     onRepoRetry: () -> Unit,
@@ -78,6 +80,11 @@ fun RepoDetailScreen(
             contentPadding = PaddingValues(horizontal = Dimens.large, vertical = Dimens.large)
         ) {
 
+            if (showStaleDataBanner) {
+                item {
+                    OfflineBanner(resId = R.string.showing_cached_data_for_repo_detail)
+                }
+            }
 
             items(
                 items = items,

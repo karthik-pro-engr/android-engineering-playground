@@ -13,25 +13,22 @@ class RepoMapperTest {
         val dto = GitHubRepoDto(
             id = 123,
             name = "compose-playground",
-            full_name = "karthik-pro-engr/compose-playground",
             description = "A demo",
             stargazers_count = 42,
             language = "Kotlin",
             forks_count = 0,
-            languages_url = "https://api.github.com/repos/karthik-pro-engr/compose-playground/languages",
             owner = GitHubOwnerDto(
                 login = "karthik-pro-engr",
                 id = 1,
                 avatar_url = "https://avatars.githubusercontent.com/u/101930095?v=4",
                 html_url = "https://github.com/karthik-pro-engr"
             ),
-            html_url = "https://github.com/karthik-pro-engr",
             topics = emptyList()
         )
         val domainRepo = RepoMapper.fromDto(dto)
         assertThat(domainRepo.id).isEqualTo(123)
         assertThat(domainRepo.name).isEqualTo("compose-playground")
-        assertThat(domainRepo.owner.name).isEqualTo("karthik-pro-engr")
+        assertThat(domainRepo.ownerName).isEqualTo("karthik-pro-engr")
         assertThat(domainRepo.stars).isEqualTo(42)
         assertThat(domainRepo.language).isEqualTo("Kotlin")
     }

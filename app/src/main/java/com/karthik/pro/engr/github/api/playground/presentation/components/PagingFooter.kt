@@ -9,6 +9,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -21,7 +22,8 @@ import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoL
 fun PagingFooter(modifier: Modifier = Modifier, lazyPagingItems: LazyPagingItems<*>) {
     when (val append = lazyPagingItems.loadState.append) {
         is LoadState.Error -> {
-            val error = PagingErrorMapper.mapPagingError(append.error)
+            val context = LocalContext.current
+            val error = PagingErrorMapper.mapPagingError(append.error, context)
             Column(
                 modifier = Modifier
                     .testTag(APPEND_ERROR)

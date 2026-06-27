@@ -23,7 +23,7 @@ fun fakeItems(): List<RepoDetailItemUi> {
 
         add(
             RepoDetailItemUi.HeaderSuccess(
-                HeaderUi(repo.owner.name, repo.name, repo.description.orEmpty())
+                HeaderUi(repo.ownerName, repo.name, repo.description.orEmpty())
             )
         )
 

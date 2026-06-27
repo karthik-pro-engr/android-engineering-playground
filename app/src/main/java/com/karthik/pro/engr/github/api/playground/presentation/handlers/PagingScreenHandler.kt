@@ -2,6 +2,7 @@ package com.karthik.pro.engr.github.api.playground.presentation.handlers
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.karthik.pro.engr.github.api.playground.presentation.components.FullScreenError
@@ -27,8 +28,9 @@ fun <T : Any> PagingScreenHandler(
 
     when {
         isInitialError && hasEmptyList -> {
+            val context = LocalContext.current
             FullScreenError(
-                error = PagingErrorMapper.mapPagingError(refreshState.error),
+                error = PagingErrorMapper.mapPagingError(refreshState.error, context),
                 onRetry = onRetry
             )
         }

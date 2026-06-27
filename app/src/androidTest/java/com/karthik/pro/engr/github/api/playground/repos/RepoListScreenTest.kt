@@ -38,7 +38,7 @@ class RepoListScreenTest {
             PagingScreenHandler(
                 lazyPagingItems = lazyPagingItems,
                 emptyContent = {},
-                itemContent = { RepoListItem(repo = it) }
+                itemContent = { RepoListItem(repo = it){ownerName, repoName-> println("Item clicked")} }
             )
         }
     }

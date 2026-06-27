@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.playground.R
+import com.karthik.pro.engr.github.api.playground.presentation.components.OfflineBanner
 import com.karthik.pro.engr.github.api.playground.presentation.handlers.PagingScreenHandler
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_BUTTON
 import com.karthik.pro.engr.github.api.playground.presentation.repos.GithubRepoListTestTags.SEARCH_INPUT
@@ -96,17 +99,36 @@ fun RepoListScreen(
 
             val lazyPagingItems = reposSharedFlow.collectAsLazyPagingItems()
 
-            PagingScreenHandler(lazyPagingItems = lazyPagingItems, emptyContent = {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.no_repos_found))
-                }
-            }) { repo ->
-                RepoListItem(
-                    repo = repo,
-                    onRepoClick = onRepoClick
-                )
-            }
+            val loadState = lazyPagingItems.loadState
 
+            val isRefreshing =
+                loadState.refresh is LoadState.Loading &&
+                        lazyPagingItems.itemCount > 0
+
+            if (
+                lazyPagingItems.itemCount > 0 &&
+                loadState.refresh is LoadState.Error
+            ) {
+                OfflineBanner(resId = R.string.showing_cached_data_for_list)
+            }
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    lazyPagingItems.refresh()
+                }
+            ) {
+                PagingScreenHandler(lazyPagingItems = lazyPagingItems, emptyContent = {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.no_repos_found))
+                    }
+                }) { repo ->
+                    RepoListItem(
+                        repo = repo,
+                        onRepoClick = onRepoClick
+                    )
+                }
+
+            }
         }
 
     }

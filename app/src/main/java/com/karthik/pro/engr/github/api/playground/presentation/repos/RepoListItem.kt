@@ -31,11 +31,11 @@ fun RepoListItem(
             .fillMaxWidth()
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
             .clickable {
-                onRepoClick(repo.owner.name, repo.name)
+                onRepoClick(repo.ownerName, repo.name)
             }
     ) {
         Text(
-            repo.fullName,
+            repo.name,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(5.dp)
         )

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.karthik.pro.engr.github.api.domain.model.Repo
+import com.karthik.pro.engr.github.api.domain.usecase.CleanupInactiveDataUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.GetUserReposUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi

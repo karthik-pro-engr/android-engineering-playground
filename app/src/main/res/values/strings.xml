@@ -22,9 +22,25 @@
     <!-- loading / errors -->
     <string name="loading_initial">Loading…</string>
     <string name="repos_loading">Loading item</string>
-    <string name="error_generic">Something went wrong</string>
-    <string name="error_no_internet">No internet connection</string>
+    <string name="error_generic"> Something went wrong. Please try again.</string>
+    <string name="error_no_internet"> No internet connection. Please check your network and try again.</string>
     <string name="error_user_not_found">User not found</string>
+    <string name="showing_cached_data_for_list">
+    Showing cached data. Unable to refresh latest repositories.
+    </string>
+    <string name="showing_cached_data_for_repo_detail">
+    Showing cached data. Unable to refresh latest repository information.
+    </string>
+
+
+    <string name="error_timeout">
+    The request timed out. Please try again.
+   </string>
+
+    <string name="error_connection">
+    Unable to connect to the server. Please try again.
+    </string>
+
 
     <!-- accessibility / titles -->
     <string name="title_repo_list">Repositories</string>

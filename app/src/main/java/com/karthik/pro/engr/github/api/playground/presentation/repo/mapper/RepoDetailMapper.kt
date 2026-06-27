@@ -12,15 +12,12 @@ fun Repo.toRepoDetailUi() =
     RepoDetailUi(
         id = id,
         name = name,
-        fullName = fullName,
         description = description.orEmpty(),
-        htmlUrl = htmlUrl,
-        language = language.orEmpty(),
-        languagesUrl = languagesUrl,
         stars = NumberFormatter.readableCount(stars),
         forks = NumberFormatter.readableCount(forks),
         topics = topics,
-        owner = owner,
+        language = language,
+        ownerName = ownerName,
     )
 
 
