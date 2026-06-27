@@ -46,51 +46,13 @@ engineering practices.
 
 # 📱 Screenshots
 
-## Home Screen
+| Home | Repository List | Repository Details |
+|------|----------------|-------------------|
+| ![Home](docs/images/home-screen.png) | ![Repository List](docs/images/repository-list.png) | ![Repository Details](docs/images/repository-details.png) |
 
-Search public GitHub repositories by username.
-
-![Home Screen](docs/images/home-screen.png)
-
----
-
-## Repository Search Results
-
-Paginated repository list powered by Paging 3 and Room.
-
-![Repository List](docs/images/repository-list.png)
-
----
-
-## Repository Details
-
-Detailed repository information including topics, language distribution, stars, forks, and releases.
-
-![Repository Details](docs/images/repository-details.png)
-
----
-
-## Offline Cached Repository List
-
-Previously loaded repositories remain available when network connectivity is unavailable.
-
-![Offline Repository List](docs/images/offline-repository-list.png)
-
----
-
-## Offline Cached Repository Details
-
-Repository details continue to work from local storage even when offline.
-
-![Offline Repository Details](docs/images/offline-repository-details.png)
-
----
-
-## Offline Empty State
-
-Graceful error handling when no cached data exists and network is unavailable.
-
-![Offline Empty State](docs/images/offline-empty-state.png)
+| Offline List | Offline Details | Empty State |
+|-------------|-----------------|-------------|
+| ![Offline List](docs/images/offline-repository-list.png) | ![Offline Details](docs/images/offline-repository-details.png) | ![Offline Empty State](docs/images/offline-empty-state.png) |
 
 ---
 
