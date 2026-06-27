@@ -1,212 +1,488 @@
 package com.karthik.pro.engr.github.api.playground.presentation.repo
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.karthik.pro.engr.github.api.core.testing.RepoFactory
+import com.karthik.pro.engr.github.api.core.testing.coroutine.MainDispatcherRule
 import com.karthik.pro.engr.github.api.data.remote.mapper.toLanguageList
 import com.karthik.pro.engr.github.api.domain.error.DomainError
+import com.karthik.pro.engr.github.api.domain.model.Language
+import com.karthik.pro.engr.github.api.domain.model.Release
 import com.karthik.pro.engr.github.api.domain.model.Repo
-import com.karthik.pro.engr.github.api.playground.presentation.repo.model.RepoDetailItemUi
-import io.mockk.coEvery
-import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
-import org.junit.Test
 import com.karthik.pro.engr.github.api.domain.result.Result
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveLanguagesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveReleasesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.ObserveRepoDetailUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshLanguagesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshReleasesUseCase
+import com.karthik.pro.engr.github.api.domain.usecase.RefreshRepoDetailUseCase
+import com.karthik.pro.engr.github.api.playground.presentation.navigation.AppDestinations.REPO_NAME_ARG
+import com.karthik.pro.engr.github.api.playground.presentation.navigation.AppDestinations.REPO_OWNER_ARG
+import com.karthik.pro.engr.github.api.playground.presentation.repo.mapper.toRepoDetailUi
+import com.karthik.pro.engr.github.api.playground.presentation.repo.model.RepoDetailItemUi
+import io.mockk.MockKAnnotations
+import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
-
-private suspend fun <T> ReceiveTurbine<T>.awaitUntil(
-    condition: (T) -> Boolean
-): T {
-    while (true) {
-        val item = awaitItem()
-        if (condition(item)) return item
-    }
-}
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RepoDetailViewModelTest {
-/*
-    private val repoUseCase = mockk<GetRepoDetailUseCase>()
-    private val languageUseCase = mockk<GetLanguageUseCase>()
-    private val releaseUseCase = mockk<GetReleasesUseCase>()
 
-    private fun createViewModel() = RepoDetailViewModel(
-        savedStateHandle = SavedStateHandleFactory.repoDetail(),
-        repoUseCase,
-        languageUseCase,
-        releaseUseCase
-    )
+    @get:Rule
+    val mainDispatcherRule =
+        MainDispatcherRule()
 
-    private fun successRepo() =
-        Result.Success(RepoFactory.defaultRepo())
+    @MockK
+    private lateinit var observeRepoDetailUseCase: ObserveRepoDetailUseCase
 
-    private fun successLanguages() =
-        Result.Success(RepoFactory.defaultLanguages())
+    @MockK
+    private lateinit var refreshRepoDetailUseCase: RefreshRepoDetailUseCase
 
-    private fun successReleases() =
-        Result.Success(RepoFactory.defaultReleases())
+    @MockK
+    private lateinit var observeLanguagesUseCase: ObserveLanguagesUseCase
 
-    private fun failureUnknown() = Result.Failure(DomainError.Unknown)
+    @MockK
+    private lateinit var refreshLanguagesUseCase: RefreshLanguagesUseCase
 
-    @Test
-    fun `when repo loading then show header loading`() = runTest {
-        coEvery { repoUseCase(any(), any()) } coAnswers {
-            awaitCancellation()
-        }
+    @MockK
+    private lateinit var observeReleasesUseCase: ObserveReleasesUseCase
 
-        val vm = createViewModel()
+    @MockK
+    private lateinit var refreshReleasesUseCase: RefreshReleasesUseCase
 
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.firstOrNull() is RepoDetailItemUi.HeaderLoading
-            }
+    @Before
+    fun setup() {
+        MockKAnnotations.init(this)
 
-            assertThat(items.first())
-                .isInstanceOf(RepoDetailItemUi.HeaderLoading::class.java)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+        mockkStatic(Log::class)
+        every {
+            Log.d(
+                any(),
+                any()
+            )
+        } returns 0
     }
 
-
-    @Test
-    fun `when repo error then show only header error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns Result.Failure(DomainError.Unknown)
-
-        val vm = createViewModel()
-
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.firstOrNull() is RepoDetailItemUi.HeaderError
-            }
-
-            assertThat(items.size).isEqualTo(1)
-            assertThat(items.first())
-                .isInstanceOf(RepoDetailItemUi.HeaderError::class.java)
-
-            cancelAndIgnoreRemainingEvents()
-        }
+    @After
+    fun tearDown() {
+        unmockkStatic(Log::class)
     }
 
-
     @Test
-    fun `when repo success and others loading then show loading sections`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns successRepo()
-        coEvery { languageUseCase(any(), any()) } coAnswers { awaitCancellation() }
-        coEvery { releaseUseCase(any(), any()) } coAnswers { awaitCancellation() }
+    fun cached_repo_and_refresh_failure_shows_stale_banner() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = RepoFactory.defaultRepo()
+            )
+            arrangeRefreshes(
+                repoResult = Result.Failure(
+                    DomainError.Network
+                )
+            )
 
-        val vm = createViewModel()
+            // Act
+            val viewModel =
+                createViewModel()
 
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.LanguageLoading } &&
-                        it.any { item -> item is RepoDetailItemUi.ReleaseLoading }
+            advanceUntilIdle()
+
+            // Assert
+            viewModel.showStaleDataBanner.test {
+                assertThat(awaitItem())
+                    .isTrue()
+
+                assertThat(
+                    viewModel.showStaleDataBanner.value
+                ).isTrue()
+
+                cancelAndIgnoreRemainingEvents()
             }
-
-            assertThat(items.first())
-                .isInstanceOf(RepoDetailItemUi.HeaderSuccess::class.java)
-
-            assertThat(items.any { it is RepoDetailItemUi.LanguageLoading }).isTrue()
-            assertThat(items.any { it is RepoDetailItemUi.ReleaseLoading }).isTrue()
-
-            cancelAndIgnoreRemainingEvents()
         }
-    }
-
 
     @Test
-    fun `when language fails then show language error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns successRepo()
-        coEvery { languageUseCase(any(), any()) } returns failureUnknown()
-        coEvery { releaseUseCase(any(), any()) } coAnswers { awaitCancellation() }
+    fun no_cache_and_refresh_failure_shows_repo_error() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = null
+            )
+            arrangeRefreshes(
+                repoResult = Result.Failure(
+                    DomainError.Network
+                )
+            )
 
-        val vm = createViewModel()
+            // Act
+            val viewModel =
+                createViewModel()
 
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.LanguageError }
+            advanceUntilIdle()
+
+            // Assert
+            viewModel.repoUiState.test {
+                val state =
+                    awaitItem()
+
+                assertThat(state)
+                    .isInstanceOf(
+                        RepoDetailUiState.Error::class.java
+                    )
+
+                assertThat(
+                    viewModel.repoUiState.value
+                ).isEqualTo(
+                    state
+                )
+
+                cancelAndIgnoreRemainingEvents()
             }
-
-            assertThat(items.any { it is RepoDetailItemUi.LanguageError }).isTrue()
-
-            cancelAndIgnoreRemainingEvents()
         }
-    }
 
-    // ----------------------------
-    // Release Error
-    // ----------------------------
     @Test
-    fun `when release fails then show release error`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns successRepo()
-        coEvery { languageUseCase(any(), any()) } coAnswers { awaitCancellation() }
-        coEvery { releaseUseCase(any(), any()) } returns failureUnknown()
-        val vm = createViewModel()
+    fun observed_repo_updates_repo_ui_state() =
+        runTest {
+            // Arrange
+            val repo =
+                RepoFactory.defaultRepo()
 
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.ReleaseError }
+            arrangeObservedData(
+                repo = repo
+            )
+            arrangeRefreshes()
+
+            // Act
+            val viewModel =
+                createViewModel()
+
+            advanceUntilIdle()
+
+            // Assert
+            viewModel.repoUiState.test {
+                assertThat(awaitItem())
+                    .isEqualTo(
+                        RepoDetailUiState.Success(
+                            repo.toRepoDetailUi()
+                        )
+                    )
+
+                assertThat(
+                    viewModel.repoUiState.value
+                ).isEqualTo(
+                    RepoDetailUiState.Success(
+                        repo.toRepoDetailUi()
+                    )
+                )
+
+                cancelAndIgnoreRemainingEvents()
             }
-
-            assertThat(items.any { it is RepoDetailItemUi.ReleaseError }).isTrue()
-
-            cancelAndIgnoreRemainingEvents()
         }
-    }
-
 
     @Test
-    fun `when all success then show full ui`() = runTest {
-        coEvery { repoUseCase(any(), any()) } returns successRepo()
-        coEvery { languageUseCase(any(), any()) } returns successLanguages()
-        coEvery { releaseUseCase(any(), any()) } returns successReleases()
+    fun successful_load_builds_expected_ui_items() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = RepoFactory.defaultRepo(),
+                languages = defaultLanguages(),
+                releases = RepoFactory.defaultReleases()
+            )
+            arrangeRefreshes()
 
-        val vm = createViewModel()
+            // Act
+            val viewModel =
+                createViewModel()
 
-        vm.uiItems.test {
-            val items = awaitUntil {
-                it.any { item -> item is RepoDetailItemUi.LanguageSuccess } &&
-                        it.any { item -> item is RepoDetailItemUi.ReleaseSuccess }
+            // Assert
+            viewModel.uiItems.test {
+                advanceUntilIdle()
+
+                val items =
+                    awaitUntil { uiItems ->
+                        uiItems.any { it is RepoDetailItemUi.HeaderSuccess } &&
+                                uiItems.any { it is RepoDetailItemUi.Stats } &&
+                                uiItems.any { it is RepoDetailItemUi.Topics } &&
+                                uiItems.any { it is RepoDetailItemUi.LanguageSuccess } &&
+                                uiItems.any { it is RepoDetailItemUi.ReleaseSuccess }
+                    }
+
+                assertThat(
+                    items.any { it is RepoDetailItemUi.HeaderSuccess }
+                ).isTrue()
+                assertThat(
+                    items.any { it is RepoDetailItemUi.Stats }
+                ).isTrue()
+                assertThat(
+                    items.any { it is RepoDetailItemUi.Topics }
+                ).isTrue()
+                assertThat(
+                    items.any { it is RepoDetailItemUi.LanguageSuccess }
+                ).isTrue()
+                assertThat(
+                    items.any { it is RepoDetailItemUi.ReleaseSuccess }
+                ).isTrue()
+
+                cancelAndIgnoreRemainingEvents()
             }
-
-            assertThat(items.any { it is RepoDetailItemUi.LanguageSuccess }).isTrue()
-            assertThat(items.any { it is RepoDetailItemUi.ReleaseSuccess }).isTrue()
-
-            cancelAndIgnoreRemainingEvents()
         }
-    }
-
 
     @Test
-    fun `when retry repo then repo use case invoked again`() = runTest {
+    fun empty_releases_shows_no_releases_item() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = RepoFactory.defaultRepo(),
+                languages = defaultLanguages(),
+                releases = emptyList()
+            )
+            arrangeRefreshes()
 
-        coEvery { repoUseCase(any(), any()) } returns successRepo()
+            // Act
+            val viewModel =
+                createViewModel()
 
-        coEvery { languageUseCase(any(), any()) } returns Result.Success(
-            RepoFactory.defaultLanguages()
+            // Assert
+            viewModel.uiItems.test {
+                advanceUntilIdle()
+
+                val items =
+                    awaitUntil { uiItems ->
+                        uiItems.any { it is RepoDetailItemUi.NoReleases }
+                    }
+
+                assertThat(
+                    items.any { it is RepoDetailItemUi.NoReleases }
+                ).isTrue()
+
+                assertThat(
+                    viewModel.uiItems.value
+                ).contains(
+                    RepoDetailItemUi.NoReleases
+                )
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun retry_repo_detail_invokes_all_refresh_use_cases() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = null
+            )
+            arrangeRefreshes()
+
+            val viewModel =
+                createViewModel()
+
+            advanceUntilIdle()
+
+            clearMocks(
+                refreshRepoDetailUseCase,
+                refreshLanguagesUseCase,
+                refreshReleasesUseCase,
+                answers = false
+            )
+
+            // Act
+            viewModel.retryRepoDetail()
+
+            advanceUntilIdle()
+
+            // Assert
+            coVerify(exactly = 1) {
+                refreshRepoDetailUseCase(
+                    OWNER_NAME,
+                    REPO_NAME
+                )
+            }
+            coVerify(exactly = 1) {
+                refreshLanguagesUseCase(
+                    OWNER_NAME,
+                    REPO_NAME
+                )
+            }
+            coVerify(exactly = 1) {
+                refreshReleasesUseCase(
+                    OWNER_NAME,
+                    REPO_NAME
+                )
+            }
+        }
+
+    @Test
+    fun retry_languages_invokes_refresh_languages_use_case() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = null
+            )
+            arrangeRefreshes()
+
+            val viewModel =
+                createViewModel()
+
+            advanceUntilIdle()
+
+            clearMocks(
+                refreshLanguagesUseCase,
+                answers = false
+            )
+
+            // Act
+            viewModel.retryLanguages()
+
+            advanceUntilIdle()
+
+            // Assert
+            coVerify(exactly = 1) {
+                refreshLanguagesUseCase(
+                    OWNER_NAME,
+                    REPO_NAME
+                )
+            }
+        }
+
+    @Test
+    fun retry_releases_invokes_refresh_releases_use_case() =
+        runTest {
+            // Arrange
+            arrangeObservedData(
+                repo = null
+            )
+            arrangeRefreshes()
+
+            val viewModel =
+                createViewModel()
+
+            advanceUntilIdle()
+
+            clearMocks(
+                refreshReleasesUseCase,
+                answers = false
+            )
+
+            // Act
+            viewModel.retryReleases()
+
+            advanceUntilIdle()
+
+            // Assert
+            coVerify(exactly = 1) {
+                refreshReleasesUseCase(
+                    OWNER_NAME,
+                    REPO_NAME
+                )
+            }
+        }
+
+    private fun createViewModel(): RepoDetailViewModel {
+        return RepoDetailViewModel(
+            savedStateHandle = SavedStateHandle(
+                mapOf(
+                    REPO_OWNER_ARG to OWNER_NAME,
+                    REPO_NAME_ARG to REPO_NAME
+                )
+            ),
+            observeRepoDetailUseCase = observeRepoDetailUseCase,
+            refreshRepoDetailUseCase = refreshRepoDetailUseCase,
+            observeLanguagesUseCase = observeLanguagesUseCase,
+            refreshLanguagesUseCase = refreshLanguagesUseCase,
+            observeReleasesUseCase = observeReleasesUseCase,
+            refreshReleasesUseCase = refreshReleasesUseCase
         )
+    }
 
-        coEvery { releaseUseCase(any(), any()) } returns Result.Success(
-            RepoFactory.defaultReleases()
-        )
+    private fun arrangeObservedData(
+        repo: Repo?,
+        languages: List<Language> = defaultLanguages(),
+        releases: List<Release> = RepoFactory.defaultReleases()
+    ) {
+        every {
+            observeRepoDetailUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns flowOf(repo)
 
-        val vm = createViewModel()
+        every {
+            observeLanguagesUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns flowOf(languages)
 
-        advanceUntilIdle()
+        every {
+            observeReleasesUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns flowOf(releases)
+    }
 
-        vm.retryRepoDetail()
+    private fun arrangeRefreshes(
+        repoResult: Result<Unit, DomainError> = Result.Success(Unit),
+        languagesResult: Result<Unit, DomainError> = Result.Success(Unit),
+        releasesResult: Result<Unit, DomainError> = Result.Success(Unit)
+    ) {
+        coEvery {
+            refreshRepoDetailUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns repoResult
 
-        advanceUntilIdle()
+        coEvery {
+            refreshLanguagesUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns languagesResult
 
-        coVerify(exactly = 2) {
-            repoUseCase(any(), any())
+        coEvery {
+            refreshReleasesUseCase(
+                OWNER_NAME,
+                REPO_NAME
+            )
+        } returns releasesResult
+    }
+
+    private fun defaultLanguages(): List<Language> {
+        return RepoFactory.defaultLanguages()
+            .toLanguageList()
+    }
+
+    private suspend fun <T> ReceiveTurbine<T>.awaitUntil(
+        condition: (T) -> Boolean
+    ): T {
+        while (true) {
+            val item =
+                awaitItem()
+
+            if (condition(item)) {
+                return item
+            }
         }
-    }*/
+    }
+
+    private companion object {
+        const val OWNER_NAME = "karthik-pro-engr"
+        const val REPO_NAME = "github-api-playground"
+    }
 }

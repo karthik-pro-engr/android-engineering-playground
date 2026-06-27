@@ -132,4 +132,16 @@ interface RepoDao {
         ownerName: String,
         repoName: String
     ): RepoEntity?
+
+    @Query(
+        """
+    SELECT *
+    FROM RepoEntity
+    WHERE username = :username
+    ORDER BY id
+    """
+    )
+    suspend fun getReposByUsername(
+        username: String
+    ): List<RepoEntity>
 }

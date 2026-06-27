@@ -46,9 +46,8 @@ class GithubRemoteMediator(
                     )
                     if (response.isSuccessful) {
                         val repoDtos = response.body().orEmpty()
-                        val result = response.body().orEmpty()
                         val repoEntities = RepoEntityMapper.fromDtoList(
-                            result, username
+                            repoDtos, username
                         )
 
                         val headerLink = response.headers()[NetworkConstants.HEADER_LINK]

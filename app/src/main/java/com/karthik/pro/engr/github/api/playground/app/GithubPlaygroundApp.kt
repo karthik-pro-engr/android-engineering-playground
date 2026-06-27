@@ -22,10 +22,6 @@ class GithubPlaygroundApp : Application(),
 
     override val workManagerConfiguration: Configuration
         get() {
-            Log.d(
-                "WORK_MANAGER",
-                "Using HiltWorkerFactory"
-            )
             return Configuration.Builder()
                 .setWorkerFactory(workerFactory)
                 .build()

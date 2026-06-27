@@ -5,9 +5,13 @@ package com.karthik.pro.engr.github.api.data.remote.repository
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.room.Room
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.karthik.pro.engr.github.api.core.testing.coroutine.MainDispatcherRule
+import com.karthik.pro.engr.github.api.data.local.dao.RemoteKeysDao
+import com.karthik.pro.engr.github.api.data.local.dao.RepoDao
+import com.karthik.pro.engr.github.api.data.local.database.GithubDatabase
 import com.karthik.pro.engr.github.api.data.remote.api.GithubService
 import com.karthik.pro.engr.github.api.data.remote.error.ErrorParser
 import com.karthik.pro.engr.github.api.domain.model.Repo
@@ -30,12 +34,20 @@ class GithubRepositoryImplTest {
     private val service: GithubService = mockk()
     private val errorParser: ErrorParser = mockk()
 
+    private val githubDatabase: GithubDatabase = mockk()
+    private val repoDao: RepoDao = mockk()
+    private val remoteKeysDao: RemoteKeysDao = mockk()
+
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Before
     fun setup() {
-        repository = GithubRepositoryImpl(service, errorParser)
+
+        repository = GithubRepositoryImpl(
+            service, errorParser,
+            database = githubDatabase, repoDao = repoDao, remoteKeysDao = remoteKeysDao
+        )
     }
 
 
