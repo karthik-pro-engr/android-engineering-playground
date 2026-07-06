@@ -59,6 +59,9 @@ pagingRuntimeKtx = "3.4.2"
 #Serialization
 serialization = "1.11.0"
 
+#apollo
+apollo = "4.3.3"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
@@ -133,6 +136,8 @@ androidx-paging-common = { module = "androidx.paging:paging-common", version.ref
 #Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
+apollo-runtime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
+
 
 # --- Testing ---
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
@@ -152,3 +157,4 @@ kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kapt" }
 firebase-appdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebase" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 room = { id = "androidx.room", version.ref = "room" }
+apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
