@@ -44,6 +44,14 @@ android {
             "$projectDir/schemas"
         )
     }
+
+    apollo {
+        service("github") {
+            packageName.set(
+                "com.karthik.pro.engr.github.api.data.graphql"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -76,6 +84,8 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.apollo.runtime)
 
 
     testImplementation(libs.junit)
