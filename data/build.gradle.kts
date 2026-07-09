@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,12 @@ plugins {
     kotlin("kapt")
 }
 
+val githubGraphqlToken =
+    project.findProperty(
+        "GRAPHQL_TOKEN"
+    ) as String? ?: ""
+
+println("GRAPHQL_TOKEN = '$githubGraphqlToken'")
 android {
     namespace = "com.karthik.pro.engr.github.api.data"
     compileSdk {
@@ -19,6 +27,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "GRAPHQL_TOKEN",
+            "\"$githubGraphqlToken\""
+        )
     }
 
     buildTypes {
@@ -51,6 +65,9 @@ android {
                 "com.karthik.pro.engr.github.api.data.graphql"
             )
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
