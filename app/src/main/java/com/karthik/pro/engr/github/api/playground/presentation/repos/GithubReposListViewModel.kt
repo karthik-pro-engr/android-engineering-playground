@@ -50,13 +50,6 @@ class GithubReposListViewModel @Inject constructor(
     init {
 
         viewModelScope.launch {
-            val repo = graphqlDataSource.getRepoDetail(
-                owner = "google",
-                repo = "dagger"
-            )
-            Log.d("GraphQL", "Name: ${repo?.name}")
-            Log.d("GraphQL", "Stars: ${repo?.stargazerCount}")
-            Log.d("GraphQL", "Language: ${repo?.primaryLanguage?.name}")
             _committedQuery.collect { query ->
                 savedStateHandle[KEY_USER_NAME_QUERY] = query
             }

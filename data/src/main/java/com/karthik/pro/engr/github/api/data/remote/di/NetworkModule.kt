@@ -70,9 +70,6 @@ object NetworkModule {
 
 
         val token = BuildConfig.GRAPHQL_TOKEN
-            ?: error(
-                "GRAPHQL_TOKEN environment variable not found"
-            )
 
         return OkHttpClient.Builder()
             .addInterceptor(

@@ -11,11 +11,10 @@ plugins {
 }
 
 val githubGraphqlToken =
-    project.findProperty(
-        "GRAPHQL_TOKEN"
-    ) as String? ?: ""
+    System.getenv("GITHUB_GRAPHQL_TOKEN")
+        ?: project.findProperty("GITHUB_GRAPHQL_TOKEN") as String?
+        ?: ""
 
-println("GRAPHQL_TOKEN = '$githubGraphqlToken'")
 android {
     namespace = "com.karthik.pro.engr.github.api.data"
     compileSdk {
@@ -37,7 +36,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
         }
         create("beta") {
             initWith(getByName("release"))
@@ -71,9 +70,19 @@ android {
     }
 }
 
+tasks.register("ci") {
+    dependsOn(
+        "clean",
+        "assembleDebug",
+        "assembleBeta",
+        "test",
+        "lint"
+    )
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation (libs.kotlin.stdlib)
+    implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
@@ -120,7 +129,6 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.paging.testing)
     testImplementation(project(":core-testing"))
-
 
 
 }

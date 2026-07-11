@@ -178,21 +178,16 @@ class RepoDetailViewModel @Inject constructor(
     }
 
 
-    fun retryRepoDetail() {
-
-        refreshRepoDetail()
-
-        refreshLanguages()
-
-        refreshReleases()
-    }
-
+   fun retryRepoDetail() {
+    refreshRepoDetail()
+    refreshLanguages()
+}
     fun retryLanguages() {
         refreshLanguages()
     }
 
     fun retryReleases() {
-        refreshReleases()
+        refreshRepoDetail()
     }
 
     private fun observeRepoDetail() {
@@ -225,7 +220,6 @@ class RepoDetailViewModel @Inject constructor(
 
                     observeReleases()
 
-                    refreshReleases()
                 }
 
             }

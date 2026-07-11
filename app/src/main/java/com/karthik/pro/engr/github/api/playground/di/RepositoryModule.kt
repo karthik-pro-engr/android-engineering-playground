@@ -1,5 +1,7 @@
 package com.karthik.pro.engr.github.api.playground.di
 
+import com.karthik.pro.engr.github.api.data.remote.graphql.datasource.GithubGraphqlDataSource
+import com.karthik.pro.engr.github.api.data.remote.graphql.datasource.GithubGraphqlDataSourceImpl
 import com.karthik.pro.engr.github.api.data.remote.repository.GithubRepositoryImpl
 import com.karthik.pro.engr.github.api.data.remote.repository.RepoDetailRepositoryImpl
 import com.karthik.pro.engr.github.api.domain.repository.GithubRepository
@@ -23,5 +25,8 @@ abstract class RepositoryModule {
     abstract fun bindRepoDetailRepository(
         impl: RepoDetailRepositoryImpl
     ): RepoDetailRepository
+
+    @Binds
+    abstract fun bindGraphqlDataSource(dataSourceImpl: GithubGraphqlDataSourceImpl):GithubGraphqlDataSource
 
 }

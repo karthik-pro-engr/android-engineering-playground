@@ -120,6 +120,8 @@ jobs:
       # -----------------------
       - name: Build (assembleDebug)
         run: ./gradlew assembleDebug --no-daemon --info --stacktrace
+        env:
+          GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
       - name: Build (assembleBeta - guarded)
         if: >
@@ -129,12 +131,18 @@ jobs:
                startsWith(github.ref, 'refs/tags/')
           ) }}
         run: ./gradlew assembleBeta --no-daemon --info --stacktrace
+        env:
+          GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
       - name: Run unit tests
         run: ./gradlew test --no-daemon --info --stacktrace
+        env:
+          GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
       - name: Run Android lint
         run: ./gradlew lint --no-daemon --info --stacktrace
+        env:
+          GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
       - name: Upload CI artifacts
         if: always()
