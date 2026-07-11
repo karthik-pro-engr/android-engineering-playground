@@ -134,8 +134,8 @@ jobs:
         env:
           GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 
-      - name: Run unit tests
-        run: ./gradlew test --no-daemon --info --stacktrace
+      - name: Run Debug unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon --info --stacktrace
         env:
           GRAPHQL_TOKEN: ${{ secrets.GRAPHQL_TOKEN }}
 

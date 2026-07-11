@@ -41,6 +41,7 @@ android {
         create("beta") {
             initWith(getByName("release"))
             matchingFallbacks += listOf("release")
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -75,8 +76,9 @@ tasks.register("ci") {
         "clean",
         "assembleDebug",
         "assembleBeta",
-        "test",
-        "lint"
+        "testDebugUnitTest",
+        "lint",
+        "assembleRelease",
     )
 }
 
