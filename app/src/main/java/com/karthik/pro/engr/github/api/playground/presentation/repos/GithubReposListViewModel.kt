@@ -27,8 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GithubReposListViewModel @Inject constructor(
     private val useCase: GetUserReposUseCase,
-    private val savedStateHandle: SavedStateHandle,
-    private val graphqlDataSource: GithubGraphqlDataSourceImpl
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
