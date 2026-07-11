@@ -10,6 +10,9 @@ import com.karthik.pro.engr.github.api.data.local.database.GithubDatabase
 import com.karthik.pro.engr.github.api.data.local.entity.RepoSearchEntity
 import com.karthik.pro.engr.github.api.data.remote.api.GithubService
 import com.karthik.pro.engr.github.api.data.remote.error.ErrorParser
+import com.karthik.pro.engr.github.api.data.remote.graphql.datasource.GithubGraphqlDataSource
+import com.karthik.pro.engr.github.api.data.remote.graphql.mapper.RepoGraphqlEntityMapper
+import com.karthik.pro.engr.github.api.data.remote.graphql.mapper.RepoGraphqlReleaseMapper
 import com.karthik.pro.engr.github.api.data.remote.mapper.ReleaseMapper
 import com.karthik.pro.engr.github.api.data.remote.mapper.RepoDomainMapper
 import com.karthik.pro.engr.github.api.data.remote.mapper.RepoEntityMapper
@@ -36,6 +39,7 @@ import kotlinx.coroutines.flow.map
 
 class RepoDetailRepositoryImpl @Inject constructor(
     private val service: GithubService,
+    private val graphqlDataSource: GithubGraphqlDataSource,
     private val repoDao: RepoDao,
     private val repoLanguageDao: RepoLanguageDao,
     private val repoReleaseDao: RepoReleaseDao,
@@ -68,35 +72,49 @@ class RepoDetailRepositoryImpl @Inject constructor(
         return withContext(ioDispatcher) {
 
             when (
-                val result = safeApiCall {
-                    service.repoDetail(
-                        ownerName,
-                        repoName
-                    )
-                }
+                val result = graphqlDataSource.getRepoDetail(
+                    ownerName,
+                    repoName
+                )
             ) {
 
                 is Result.Success -> {
+
+                    val repository = result.data
+                    val owner = repository.owner
+                    val repoId = requireNotNull(
+                        repository.databaseId
+                    ).toLong()
 
                     database.withTransaction {
 
                         repoDao.upsertSearchUser(
                             RepoSearchEntity(
-                                username = ownerName,
+                                username = owner.login,
                                 lastSync = System.currentTimeMillis(),
                                 lastAccessed = System.currentTimeMillis(),
-                                ownerId = result.data.owner.id,
-                                avatarUrl = result.data.owner.avatar_url,
-                                profileUrl = result.data.owner.html_url
+                                ownerId = 0L,
+                                avatarUrl = owner.avatarUrl.toString(),
+                                profileUrl = owner.url.toString()
                             )
                         )
 
                         repoDao.upsertRepos(
                             listOf(
-                                RepoEntityMapper.fromDto(
-                                    dto = result.data,
+                                RepoGraphqlEntityMapper.fromGraphql(
+                                    repository = repository,
                                     username = ownerName
                                 )
+                            )
+                        )
+                        repoReleaseDao.deleteReleases(
+                            repoId
+                        )
+
+                        repoReleaseDao.upsertReleases(
+                            RepoGraphqlReleaseMapper.fromGraphql(
+                                repoId = repoId,
+                                releases = repository.releases.releaseNodes.orEmpty()
                             )
                         )
                     }
@@ -225,53 +243,6 @@ class RepoDetailRepositoryImpl @Inject constructor(
         repoName: String
     ): Result<Unit, DomainError> {
 
-        return withContext(ioDispatcher) {
-
-            val repo = repoDao.getRepo(
-                ownerName,
-                repoName
-            ) ?: return@withContext Result.Failure(
-                DomainError.Unknown
-            )
-
-            when (
-                val result = safeApiCall {
-                    service.getReleases(
-                        ownerName,
-                        repoName
-                    )
-                }
-            ) {
-
-                is Result.Success -> {
-
-                    database.withTransaction {
-                        repoReleaseDao.deleteReleases(
-                            repo.id
-                        )
-
-                        repoReleaseDao.upsertReleases(
-                            RepoReleaseMapper.fromDomain(
-                                repo.id,
-                                ReleaseMapper.fromReleaseDtoList(
-                                    result.data
-                                )
-                            )
-                        )
-                    }
-
-
-
-                    Result.Success(Unit)
-                }
-
-                is Result.Failure -> {
-
-                    Result.Failure(
-                        result.error.toDomainError()
-                    )
-                }
-            }
-        }
+        return refreshRepoDetail(ownerName, repoName)
     }
 }

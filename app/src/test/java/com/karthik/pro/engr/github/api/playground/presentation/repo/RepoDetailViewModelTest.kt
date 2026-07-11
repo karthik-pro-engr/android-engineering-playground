@@ -62,8 +62,7 @@ class RepoDetailViewModelTest {
     @MockK
     private lateinit var observeReleasesUseCase: ObserveReleasesUseCase
 
-    @MockK
-    private lateinit var refreshReleasesUseCase: RefreshReleasesUseCase
+
 
     @Before
     fun setup() {
@@ -296,7 +295,6 @@ class RepoDetailViewModelTest {
             clearMocks(
                 refreshRepoDetailUseCase,
                 refreshLanguagesUseCase,
-                refreshReleasesUseCase,
                 answers = false
             )
 
@@ -318,12 +316,7 @@ class RepoDetailViewModelTest {
                     REPO_NAME
                 )
             }
-            coVerify(exactly = 1) {
-                refreshReleasesUseCase(
-                    OWNER_NAME,
-                    REPO_NAME
-                )
-            }
+
         }
 
     @Test
@@ -374,22 +367,22 @@ class RepoDetailViewModelTest {
             advanceUntilIdle()
 
             clearMocks(
-                refreshReleasesUseCase,
+                refreshRepoDetailUseCase,
                 answers = false
             )
 
-            // Act
             viewModel.retryReleases()
 
             advanceUntilIdle()
 
-            // Assert
             coVerify(exactly = 1) {
-                refreshReleasesUseCase(
+                refreshRepoDetailUseCase(
                     OWNER_NAME,
                     REPO_NAME
                 )
             }
+
+
         }
 
     private fun createViewModel(): RepoDetailViewModel {
@@ -404,8 +397,7 @@ class RepoDetailViewModelTest {
             refreshRepoDetailUseCase = refreshRepoDetailUseCase,
             observeLanguagesUseCase = observeLanguagesUseCase,
             refreshLanguagesUseCase = refreshLanguagesUseCase,
-            observeReleasesUseCase = observeReleasesUseCase,
-            refreshReleasesUseCase = refreshReleasesUseCase
+            observeReleasesUseCase = observeReleasesUseCase
         )
     }
 
@@ -455,12 +447,7 @@ class RepoDetailViewModelTest {
             )
         } returns languagesResult
 
-        coEvery {
-            refreshReleasesUseCase(
-                OWNER_NAME,
-                REPO_NAME
-            )
-        } returns releasesResult
+
     }
 
     private fun defaultLanguages(): List<Language> {

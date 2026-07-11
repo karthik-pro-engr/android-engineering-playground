@@ -1,11 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
+    alias(libs.plugins.apollo)
     kotlin("kapt")
 }
+
+val githubGraphqlToken =
+    System.getenv("GITHUB_GRAPHQL_TOKEN")
+        ?: project.findProperty("GITHUB_GRAPHQL_TOKEN") as String?
+        ?: ""
 
 android {
     namespace = "com.karthik.pro.engr.github.api.data"
@@ -18,15 +26,22 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "GRAPHQL_TOKEN",
+            "\"$githubGraphqlToken\""
+        )
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
         }
         create("beta") {
             initWith(getByName("release"))
             matchingFallbacks += listOf("release")
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -43,11 +58,33 @@ android {
             "$projectDir/schemas"
         )
     }
+
+    apollo {
+        service("github") {
+            packageName.set(
+                "com.karthik.pro.engr.github.api.data.graphql"
+            )
+        }
+    }
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+tasks.register("ci") {
+    dependsOn(
+        "clean",
+        "assembleDebug",
+        "assembleBeta",
+        "testDebugUnitTest",
+        "lint",
+        "assembleRelease",
+    )
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation (libs.kotlin.stdlib)
+    implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
@@ -76,6 +113,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(libs.apollo.runtime)
+
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -92,7 +131,6 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.paging.testing)
     testImplementation(project(":core-testing"))
-
 
 
 }

@@ -1,0 +1,46 @@
+query RepoDetail(
+    $owner: String!,
+    $repo: String!
+) {
+    repository(
+        owner: $owner,
+        name: $repo
+    ) {
+        id
+        databaseId
+        name
+        description
+
+        stargazerCount
+        forkCount
+
+        owner {
+            login
+            id
+            avatarUrl
+            url
+        }
+
+        primaryLanguage {
+            name
+        }
+
+        repositoryTopics(first: 20) {
+            topicNodes: nodes {
+                topic {
+                    name
+                }
+            }
+        }
+
+        releases(first: 20) {
+            releaseNodes: nodes  {
+                databaseId
+                name
+                tagName
+                description
+                publishedAt
+            }
+        }
+    }
+}

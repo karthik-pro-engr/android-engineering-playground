@@ -10,7 +10,6 @@ import com.karthik.pro.engr.github.api.domain.usecase.ObserveLanguagesUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.ObserveReleasesUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.ObserveRepoDetailUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.RefreshLanguagesUseCase
-import com.karthik.pro.engr.github.api.domain.usecase.RefreshReleasesUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.RefreshRepoDetailUseCase
 import com.karthik.pro.engr.github.api.playground.R
 import com.karthik.pro.engr.github.api.playground.presentation.common.UiText
@@ -44,8 +43,7 @@ class RepoDetailViewModel @Inject constructor(
     private val refreshRepoDetailUseCase: RefreshRepoDetailUseCase,
     private val observeLanguagesUseCase: ObserveLanguagesUseCase,
     private val refreshLanguagesUseCase: RefreshLanguagesUseCase,
-    private val observeReleasesUseCase: ObserveReleasesUseCase,
-    private val refreshReleasesUseCase: RefreshReleasesUseCase
+    private val observeReleasesUseCase: ObserveReleasesUseCase
 ) : ViewModel() {
 
     private val owner: String = savedStateHandle[REPO_OWNER_ARG] ?: ""
@@ -178,21 +176,16 @@ class RepoDetailViewModel @Inject constructor(
     }
 
 
-    fun retryRepoDetail() {
-
-        refreshRepoDetail()
-
-        refreshLanguages()
-
-        refreshReleases()
-    }
-
+   fun retryRepoDetail() {
+    refreshRepoDetail()
+    refreshLanguages()
+}
     fun retryLanguages() {
         refreshLanguages()
     }
 
     fun retryReleases() {
-        refreshReleases()
+        refreshRepoDetail()
     }
 
     private fun observeRepoDetail() {
@@ -225,7 +218,6 @@ class RepoDetailViewModel @Inject constructor(
 
                     observeReleases()
 
-                    refreshReleases()
                 }
 
             }
@@ -374,47 +366,6 @@ class RepoDetailViewModel @Inject constructor(
         }
     }
 
-    private fun refreshReleases() {
-
-        viewModelScope.launch {
-
-            when (
-                val result = refreshReleasesUseCase(
-                    owner,
-                    repoName
-                )
-            ) {
-
-                is Result.Success -> {
-                    Log.d("REpoDEtailViemodel", "refreshReleases:Result.Success")
-                    releaseRefreshFailed = false
-
-                    updateOfflineBanner()
-                }
-
-                is Result.Failure -> {
-
-                    if (
-                        _releasesUiState.value
-                                !is ListUiState.Success
-                    ) {
-                        Log.d("REpoDEtailViemodel", "refreshReleases:Result.Failure if")
-
-                        _releasesUiState.value =
-                            ListUiState.Error(
-                                result.error
-                            )
-                    }else {
-                        Log.d("REpoDEtailViemodel", "refreshReleases:Result.Failure else")
-
-                        releaseRefreshFailed = true
-
-                        updateOfflineBanner()
-                    }
-                }
-            }
-        }
-    }
 
 
     private fun updateOfflineBanner() {

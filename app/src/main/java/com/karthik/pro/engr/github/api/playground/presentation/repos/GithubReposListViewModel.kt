@@ -1,10 +1,12 @@
 package com.karthik.pro.engr.github.api.playground.presentation.repos
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.karthik.pro.engr.github.api.data.remote.graphql.datasource.GithubGraphqlDataSourceImpl
 import com.karthik.pro.engr.github.api.domain.model.Repo
 import com.karthik.pro.engr.github.api.domain.usecase.CleanupInactiveDataUseCase
 import com.karthik.pro.engr.github.api.domain.usecase.GetUserReposUseCase
@@ -45,6 +47,7 @@ class GithubReposListViewModel @Inject constructor(
             PAGING_REPLAY)
 
     init {
+
         viewModelScope.launch {
             _committedQuery.collect { query ->
                 savedStateHandle[KEY_USER_NAME_QUERY] = query
