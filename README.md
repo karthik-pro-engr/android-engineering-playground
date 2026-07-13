@@ -8,39 +8,29 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-orange)
 ![Room](https://img.shields.io/badge/Room-SSOT-success)
 ![Paging3](https://img.shields.io/badge/Paging3-RemoteMediator-blue)
+![Apollo GraphQL](https://img.shields.io/badge/Apollo-GraphQL-E10098)
 ![WorkManager](https://img.shields.io/badge/WorkManager-Background%20Sync-purple)
 ![License](https://img.shields.io/github/license/karthik-pro-engr/android-engineering-playground)
 
-A production-oriented Android portfolio project showcasing
-Offline-First Architecture, Clean Architecture, Paging 3,
-WorkManager, Jetpack Compose, CI/CD, and modern Android
-engineering practices.
+A production-oriented Android portfolio project showcasing modern Android engineering practices including **Offline-First Architecture**, **Clean Architecture**, **Jetpack Compose**, **Paging 3**, **Apollo GraphQL**, **WorkManager**, **Room**, and **GitHub Actions CI/CD**.
 
 ---
 
 # ✨ Key Highlights
 
-✅ Offline-First Architecture
-
-✅ Room as Single Source of Truth (SSOT)
-
-✅ Paging 3 + RemoteMediator
-
-✅ WorkManager Background Synchronization
-
-✅ Clean Architecture + MVVM
-
-✅ Hilt Dependency Injection
-
-✅ Pull-To-Refresh Support
-
-✅ Firebase Crashlytics
-
-✅ Firebase App Distribution
-
-✅ Automated Testing
-
-✅ GitHub Actions CI
+- ✅ Offline-First Architecture
+- ✅ Room as Single Source of Truth (SSOT)
+- ✅ Paging 3 + RemoteMediator
+- ✅ Apollo GraphQL Integration
+- ✅ Hybrid REST + GraphQL Networking
+- ✅ WorkManager Background Synchronization
+- ✅ Clean Architecture + MVVM
+- ✅ Hilt Dependency Injection
+- ✅ Pull-To-Refresh Support
+- ✅ Firebase Crashlytics
+- ✅ Firebase App Distribution
+- ✅ Automated Testing
+- ✅ GitHub Actions CI/CD
 
 ---
 
@@ -58,7 +48,6 @@ engineering practices.
 
 # 🏗️ Architecture
 
-
 Detailed architecture documentation:
 
 [Architecture Documentation](docs/architecture.md)
@@ -67,31 +56,64 @@ Detailed architecture documentation:
 
 # ⚙️ Architecture Overview
 
-The project follows Clean Architecture principles with clear separation between Presentation, Domain, and Data layers.
+The project follows **Clean Architecture** principles with clear separation between Presentation, Domain, and Data layers.
 
-The application adopts an Offline-First approach where Room acts as the Single Source of Truth (SSOT).
+The application adopts an **Offline-First** architecture where **Room** acts as the **Single Source of Truth (SSOT)**.
 
-Data Flow:
+Networking currently uses a **hybrid approach**:
 
-GitHub API
+- **REST (Retrofit)** for Repository List and Language Percentage APIs.
+- **Apollo GraphQL** for Repository Detail to reduce multiple network requests into a single query.
 
-→ Retrofit
+## Data Flow
 
-→ RemoteMediator
+```
+GitHub REST API
+        │
+        ▼
+ RemoteMediator
+        │
+        ▼
+Room Database (SSOT)
+        │
+        ▼
+ PagingSource
+        │
+        ▼
+ Repository
+        │
+        ▼
+  Use Cases
+        │
+        ▼
+ ViewModel
+        │
+        ▼
+Jetpack Compose UI
+```
 
-→ Room Database (SSOT)
+### Repository Detail
 
-→ PagingSource
+```
+GitHub GraphQL API
+        │
+        ▼
+ Apollo Client
+        │
+        ▼
+ Repository
+        │
+        ▼
+Room Database (SSOT)
+        │
+        ▼
+ ViewModel
+        │
+        ▼
+Jetpack Compose UI
+```
 
-→ Repository
-
-→ Use Cases
-
-→ ViewModel
-
-→ Jetpack Compose UI
-
-The UI never reads directly from the network. All data consumed by the UI originates from Room.
+The UI never reads directly from the network. All data displayed to users originates from Room.
 
 ---
 
@@ -101,12 +123,14 @@ This project evolved from a simple network-based implementation into a productio
 
 Key engineering decisions include:
 
-* Migrating from direct API pagination to RemoteMediator
-* Implementing Room as SSOT
-* Introducing resilient offline support
-* Background synchronization with WorkManager
-* Centralized error handling
-* Scalable repository architecture
+- Migrating from direct API pagination to RemoteMediator
+- Implementing Room as the Single Source of Truth
+- Introducing resilient offline support
+- Integrating Apollo GraphQL incrementally
+- Reducing multiple Repository Detail REST calls into a single GraphQL query
+- Background synchronization with WorkManager
+- Centralized error handling
+- Scalable repository architecture
 
 Detailed write-up:
 
@@ -118,31 +142,32 @@ Detailed write-up:
 
 This project uses GitHub Actions to automate quality checks and release delivery.
 
-### Continuous Integration
+## Continuous Integration
 
 Every Pull Request and push triggers:
 
-* Build Validation (`assembleDebug`)
-* Unit Tests
-* Android Lint
-* Artifact Generation
+- Build Validation
+- Unit Tests
+- Android Lint
+- Artifact Generation
 
-### Continuous Delivery
+## Continuous Delivery
 
 Version tags automatically trigger:
 
-* Signed Beta APK Generation
-* Firebase App Distribution
-* Release Artifact Upload
+- Signed Beta APK Generation
+- Firebase App Distribution
+- Release Artifact Upload
 
-### Pipeline Highlights
+## Pipeline Highlights
 
-* Automated Build Verification
-* Automated Testing
-* Static Code Analysis
-* Secure Signing with GitHub Secrets
-* Firebase App Distribution
-* Artifact Archiving
+- Automated Build Verification
+- Automated Testing
+- Static Code Analysis
+- Secure Signing using GitHub Secrets
+- Secure GraphQL Token Injection
+- Firebase App Distribution
+- Artifact Archiving
 
 Detailed documentation:
 
@@ -154,22 +179,23 @@ Detailed documentation:
 
 The project includes automated testing for critical application layers.
 
-### Covered Areas
+## Covered Areas
 
-* ViewModels
-* Use Cases
-* Repository Layer
-* Paging Components
-* Data Mapping Logic
-* Error Handling Logic
+- ViewModels
+- Use Cases
+- Repository Layer
+- Paging Components
+- GraphQL Data Source
+- Data Mapping Logic
+- Error Handling Logic
 
-### Testing Stack
+## Testing Stack
 
-* JUnit
-* MockK
-* Coroutines Test
-* Turbine
-* MockWebServer
+- JUnit
+- MockK
+- Coroutines Test
+- Turbine
+- MockWebServer
 
 The goal is to ensure business logic remains reliable, maintainable, and independently testable.
 
@@ -177,23 +203,22 @@ The goal is to ensure business logic remains reliable, maintainable, and indepen
 
 # 🛠️ Tech Stack
 
-| Category             | Technology                           |
-| -------------------- | ------------------------------------ |
-| Language             | Kotlin                               |
-| UI                   | Jetpack Compose, Material 3          |
-| Architecture         | Clean Architecture, MVVM             |
-| Dependency Injection | Hilt                                 |
-| Networking           | Retrofit, OkHttp                     |
-| Database             | Room                                 |
-| Pagination           | Paging 3, RemoteMediator             |
-| Background Sync      | WorkManager                          |
-| Concurrency          | Coroutines, Flow                     |
-| Testing              | JUnit, MockK, Turbine, MockWebServer |
-| Monitoring           | Firebase Crashlytics                 |
-| Distribution         | Firebase App Distribution            |
-| CI/CD                | GitHub Actions                       |
-| Build System         | Gradle Kotlin DSL                    |
-
+| Category | Technology |
+|-----------|------------|
+| Language | Kotlin |
+| UI | Jetpack Compose, Material 3 |
+| Architecture | Clean Architecture, MVVM |
+| Dependency Injection | Hilt |
+| Networking | Retrofit, OkHttp, Apollo GraphQL |
+| Database | Room |
+| Pagination | Paging 3, RemoteMediator |
+| Background Sync | WorkManager |
+| Concurrency | Coroutines, Flow |
+| Testing | JUnit, MockK, Turbine, MockWebServer |
+| Monitoring | Firebase Crashlytics |
+| Distribution | Firebase App Distribution |
+| CI/CD | GitHub Actions |
+| Build System | Gradle Kotlin DSL |
 
 ---
 
@@ -201,24 +226,25 @@ The goal is to ensure business logic remains reliable, maintainable, and indepen
 
 ## Karthik
 
-Senior Android Engineer | 10+ Years Experience
+**Senior Android Engineer (10+ years of Android development experience)**
 
 Passionate about building scalable, resilient, and production-ready Android applications using modern Android development practices.
 
 ### Connect
 
-* GitHub: https://github.com/karthik-pro-engr
-* LinkedIn: https://www.linkedin.com/in/karthikkumar-thangavel-a2a5b5229/
+- **GitHub:** https://github.com/karthik-pro-engr
+- **LinkedIn:** https://www.linkedin.com/in/karthikkumar-thangavel-a2a5b5229/
 
 ---
 
 # 🚀 Future Improvements
 
-* GraphQL Integration
-* Advanced Synchronization Policies
-* Multi-Account Support
-* Feature Module Expansion
-* Enhanced CI/CD Pipeline
+- Expand GraphQL adoption across remaining REST endpoints
+- Advanced synchronization policies
+- Multi-account support
+- Feature module expansion
+- Performance benchmarking
+- Enhanced CI/CD pipeline
 
 ---
 
